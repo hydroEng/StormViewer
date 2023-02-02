@@ -1,5 +1,5 @@
 import os
-from pathlib import Path
+import statistics
 import pandas
 import pandas as pd
 import re
@@ -7,8 +7,6 @@ import re
 pd.set_option('display.max_rows', 500)
 pd.set_option('display.max_columns', 500)
 pd.set_option('display.width', 1000)
-
-input_dir = r"/home/Taha/tuflow_ensemble/C01/"
 
 
 def get_po_csvs(input_dir: str) -> list:
@@ -63,7 +61,7 @@ def parse_run_id(run_id: str) -> tuple[str, str, str]:
     run_id_l = run_id.lower()
 
     storm = re.search(r"\d{2,4}[.]?\d?y", run_id_l).group()
-    duration = re.search(r"\d{2,4}m", run_id_l).group()
+    duration = re.search(r"\d{1,4}m", run_id_l).group()
     temp_patt = re.search(r"tp\d*", run_id_l).group()
 
     return storm, duration, temp_patt
@@ -133,18 +131,135 @@ def main(input):
     return all_runs_df.T
 
 
-def get_critical_storm(all_runs_df: pd.DataFrame):
+def split_po_dfs(df: pd.DataFrame) -> list[pd.DataFrame]:
+    """
+    This function takes a dataframe with multiple PO lines and splits the dataframes according to each po line for
+    better manipulation.
 
+    Args:
+        df: DataFrame containing data for multiple PO lines.
+
+    Returns:
+        a list containing a DataFrame for each po_line.
+
+    """
+
+    po_lines = []
+    po_line_dfs = []
+
+    for column, values in df.items():
+        if 'Max Flow' in column:
+            po_lines.append(column)
+
+    for po_line in po_lines:
+        split_df = df
+        excluded_columns = [x for x in po_lines if x != po_line]
+        po_line_dfs.append(split_df.drop(columns=excluded_columns))
+
+    return po_line_dfs
+
+
+def split_event(df: pd.DataFrame) -> list[pd.DataFrame]:
+    """
+    This function takes a dataframe with multiple events and splits the dataframes according to each event for better
+    manipulation.
+
+    Args:
+        df: DataFrame containing data for multiple events
+
+    Returns:
+        a list containing a DataFrame for each po_line
+    """
+
+    unique_events = df['Event'].unique().tolist()
+
+    event_dfs = []
+
+    for event in unique_events:
+        event_dfs.append(df[df['Event'] == event])
+
+    return event_dfs
+
+
+def dropsort_duration(df: pd.DataFrame) -> pd.DataFrame:
+    sorted_df = df
+    """
+    This function drops all non-numeric chars from the index ('Duration') column in dataframe and sorts the dataframe by 
+    numeric value.
+
+    Args:
+        df: DataFrame with 'Duration' column.
+
+    Returns:
+        a DataFrame sorted by duration (numeric value only).
+
+    """
+
+    # Remove alphabetical chars from minutes
+    sorted_df.index = sorted_df.index.map(lambda x: (re.sub(r"[a-zA-Z]", "", str(x))))
+    sorted_df.index = sorted_df.index.map(lambda x: int(x))
+    sorted_df = sorted_df.sort_index()
+    return sorted_df
+
+
+def tp_vs_max_flow_df(df: pd.DataFrame) -> tuple[str, str, pd.DataFrame]:
+    """
+    This function takes a df filtered by one event and one po_line and generates a 3x1 tuple with the event, the name of
+    the po_line and a dataframe presenting storm duration (x) vs temporal patterns (y), as well as average, median and
+    critical temporal patterns for the run.
+
+    Note that po_line name will be lost in this process!
+
+    Args:
+        df: DataFrame with data for one event and po_line
+
+    Returns:
+        A DataFrame sorted by duration (x) vs temporal pattern (y), avg/median values, and critical storm.
+    """
+
+    event = df['Event'].unique().tolist()[0]
+
+    po_line: str = ""
+
+    for column, values in df.items():
+        if 'Max Flow' in column:
+            po_line = str(column)
+
+    dur_tp_df = df.pivot(index='Duration', columns='Temporal Pattern', values=po_line)
+    dur_tp_df = dropsort_duration(dur_tp_df)
+    dur_tp_df['Average'] = dur_tp_df.mean(axis=1)
+    dur_tp_df['Median'] = dur_tp_df.median(axis=1)
+    dur_tp_df['Differences'] = dur_tp_df['Median'] - dur_tp_df[]
+
+def critical_storms(all_runs_df: pd.DataFrame):
     df = all_runs_df
+
     events = all_runs_df['Event'].unique()
     durations = all_runs_df['Duration'].unique()
     temp_patts = all_runs_df['Temporal Pattern'].unique()
 
-    key =
-    for column in df.items():
-        if
+    po_lines_dfs = split_po_dfs(all_runs_df)
 
-    print(df[df['Duration'] == '120m'])
+    working_dfs = []
+
+    for _ in po_lines_dfs:
+        final_dfs = split_event(_)
+        working_dfs.append(final_dfs)
+    for x in working_dfs:
+        for y in x:
+            event, po_line, df = tp_vs_max_flow_df(y)
+            print('\n',event)
+            print(po_line)
+            print(dropsort_duration(df))
+def get_critical_tp(median, duration_df: pd.DataFrame) -> dict:
+    pass
+
+
+input_dir = r"C:\Users\Public\Turnbull Engineering\0373 K2A ECI - Docs\3. Design\Drainage and Flooding\2. GIS\Working\Critical Duration Analysis\C01"
 
 all_runs = main(input_dir)
-get_critical_storm(all_runs)
+# print(all_runs)
+critical_storms(all_runs)
+
+# Deliverables
+#
