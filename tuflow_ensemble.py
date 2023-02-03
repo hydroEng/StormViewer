@@ -229,7 +229,7 @@ def tp_vs_max_flow_df(df: pd.DataFrame) -> tuple[str, str, pd.DataFrame]:
     dur_tp_df = dropsort_duration(dur_tp_df)
     dur_tp_df['Average'] = dur_tp_df.mean(axis=1)
     dur_tp_df['Median'] = dur_tp_df.median(axis=1)
-    dur_tp_df['Differences'] = dur_tp_df['Median'] - dur_tp_df[]
+    # dur_tp_df['Differences'] = dur_tp_df['Median'] - dur_tp_df[]
 
 def critical_storms(all_runs_df: pd.DataFrame):
     df = all_runs_df
