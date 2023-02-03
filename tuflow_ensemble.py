@@ -58,6 +58,17 @@ def parse_po_csv(input_file: str) -> tuple[pd.DataFrame, str]:
 
 
 def parse_run_id(run_id: str) -> tuple[str, str, str]:
+    """
+    This function reads the .csv filename and parses it into storm event, duration and temporal pattern respectively.
+
+    Args:
+        run_id: Name of csv file.
+
+    Returns:
+        a 3x1 tuple of strings with storm, duration and temporal pattern.
+
+    """
+
     run_id_l = run_id.lower()
 
     storm = re.search(r"\d{2,4}[.]?\d?y", run_id_l).group()
@@ -67,7 +78,16 @@ def parse_run_id(run_id: str) -> tuple[str, str, str]:
     return storm, duration, temp_patt
 
 
-def get_po_lines(po_df):
+def get_po_lines(po_df: pd.DataFrame) -> list[str]:
+    """
+    Grabs names of columns containing max flow, i.e. the po lines.
+    Args:
+        po_df:
+
+    Returns:
+        A list of column names containing the PO_line names
+    """
+
     po_lines = []
 
     for column, values in po_df.items():
@@ -110,16 +130,35 @@ def get_max_flows(po_df: pd.DataFrame, run_id: str) -> pd.Series:
     return pd.Series(new_row, index=columns)
 
 
-def concat_po_dfs(po_dfs) -> pd.DataFrame:
-    all_runs = pd.DataFrame()
+def concat_po_dfs(po_dfs: list[pd.DataFrame]) -> pd.DataFrame:
+    """
+    This function concatenates all dataframes generated from the CSV files into one dataframe. Output mimicks
+    format of legacy spreadsheet.
+
+    Args:
+        po_dfs: a list of DataFrames generated from the po.csv files.
+
+    Returns:
+
+    """
+    df = pd.DataFrame()
 
     for po_df in po_dfs:
-        all_runs = pd.concat([all_runs, po_df])
+        df = pd.concat([df, po_df])
 
-    return all_runs.T
+    return df.T
 
 
 def main(input):
+
+    """
+    What the fucc does this boi do
+    Args:
+        input:
+
+    Returns:
+
+    """
     po_csvs = get_po_csvs(input)
 
     all_runs_df = pd.DataFrame()
