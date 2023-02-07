@@ -291,7 +291,6 @@ def _tp_vs_max_flow_df(df: pd.DataFrame) -> tuple:
 
     dur_tp_df['Critical TP'] = dur_tp_df.apply(_get_crit_tp, axis=1)
 
-
     return event, po_line, dur_tp_df
 
 
@@ -333,17 +332,32 @@ def all_critical_storms(all_runs_df: pd.DataFrame) -> list[pd.DataFrame]:
     return all_crit_tp_dfs
 
 
-def summarize_crit_storm(crit_tp_df: pd.DataFrame):
+def summarize_results(crit_tp_df: pd.DataFrame):
     """
-    This function reads a dataframe listing all critical storms and finds the storm with the highest median. To be
-    read in conjunction with graphs.
+    This function reads a dataframe listing all critical storms and finds the duration / tp combination with highest
+    critical storm.
 
     Args:
-        crit_tp_df:
+        crit_tp_df: Pandas DataFrame with critical storms and meta-statistics.
 
     Returns:
+        Pandas Series summarizing critical storm configuration for a po_line.
 
     """
+    max_med = crit_tp_df['Median'].max()
+    crit_duration = crit_tp_df['Median'].idxmax()
+
+    crit_tp = crit_tp_df.loc[crit_duration, 'Critical TP']
+
+    event, po_line = str(crit_tp_df.name).split(':', 1)
+    po_line = po_line.replace('Max Flow ', "")
+
+    crit_max_flow = crit_tp_df.loc[crit_duration, crit_tp]
+
+    index = ['Event', 'PO Line', 'Critical Duration', 'Critical TP', 'Critical TP Flow']
+    values = [event, po_line, crit_duration, crit_tp, crit_max_flow]
+
+    return pd.Series(data=values, index=index)
 
 
 def main(input_path: str):
@@ -357,8 +371,12 @@ def main(input_path: str):
     df1 = concat_po_srs(all_max_flows)
     all_crit = all_critical_storms(df1)
 
-    for _ in all_crit:
-        print('\n\n', _.name, '\n', _ )
+    results_sr = []
+    for df in all_crit:
+        results_sr.append(summarize_results(df))
+
+    results_df = pd.DataFrame(results_sr)
+    print(results_df)
 
 
 if __name__ == '__main__':
