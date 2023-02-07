@@ -3,6 +3,8 @@ import statistics
 import pandas
 import pandas as pd
 import re
+import matplotlib as mpl
+from matplotlib import pyplot as plt
 
 pd.set_option('display.max_rows', 500)
 pd.set_option('display.max_columns', 500)
@@ -360,6 +362,18 @@ def summarize_results(crit_tp_df: pd.DataFrame):
     return pd.Series(data=values, index=index)
 
 
+def plot_results(crit_storm_df: pd.DataFrame) -> None:
+
+    # Convert tp columns to numeric value for pyplot.
+    tp_cols = [col for col in crit_storm_df.columns if 'tp' in col]
+
+    for col in tp_cols:
+        crit_storm_df[col] = crit_storm_df[col].astype(float)
+
+    ax = crit_storm_df[tp_cols].T.boxplot()
+    plt.show()
+
+
 def main(input_path: str):
     raw_inputs = get_po_csvs(input_dir)
     all_max_flows = []
@@ -370,13 +384,16 @@ def main(input_path: str):
 
     df1 = concat_po_srs(all_max_flows)
     all_crit = all_critical_storms(df1)
+    print(all_crit)
+
+    for df in all_crit:
+        plot_results(df)
 
     results_sr = []
     for df in all_crit:
         results_sr.append(summarize_results(df))
 
     results_df = pd.DataFrame(results_sr)
-    print(results_df)
 
 
 if __name__ == '__main__':
