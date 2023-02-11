@@ -1,11 +1,13 @@
 import os
 import shutil
-import statistics
-import pandas
+
+import matplotlib.patches
 import pandas as pd
 import re
 import matplotlib as mpl
 from matplotlib import pyplot as plt
+from matplotlib.patches import Patch
+import seaborn as sns
 
 pd.set_option('display.max_rows', 500)
 pd.set_option('display.max_columns', 500)
@@ -166,8 +168,8 @@ def _get_all_max_flows(po_sr: pd.Series) -> pd.Series:
     for column, values in po_sr.items():
         if 'Flow' in column:
             # Get max flow in pd Series, ignoring text (typically PO line title)
-            po_max_flows.append((pandas.to_numeric(po_sr[column],
-                                                   errors='coerce').max()))
+            po_max_flows.append((pd.to_numeric(po_sr[column],
+                                               errors='coerce').max()))
 
     run_id = po_sr.name
 
@@ -336,7 +338,7 @@ def _tp_vs_max_flow_df(df: pd.DataFrame) -> tuple:
     dur_tp_df['Median'] = dur_tp_df[tp_cols].median(axis=1)
     dur_tp_df['Critical TP'] = dur_tp_df.apply(_get_crit_tp, axis=1)
 
-    dur_tp_df.name = f"{po_line}: {event} Event"
+    dur_tp_df.name = f"{po_line}- {event} Event"
 
     return event, po_line, dur_tp_df
 
@@ -373,7 +375,7 @@ def all_critical_storms(all_runs_df: pd.DataFrame) -> list[pd.DataFrame]:
         for y in x:
             event, po_line, df = _tp_vs_max_flow_df(y)
             sorted_df = _drop_sort_duration(df)
-            sorted_df.name = f"{event}: {po_line}"
+            sorted_df.name = f"{event}- {po_line}"
             all_crit_tp_dfs.append(sorted_df)
 
     return all_crit_tp_dfs
@@ -408,24 +410,34 @@ def summarize_results(crit_tp_df: pd.DataFrame):
 
 
 def plot_results(crit_storm_df: pd.DataFrame) -> None:
-    # Convert tp columns to numeric value for pyplot.
+    """
+    Plotting function for critical storms dataframe. Plots to PNG file with filename in format 'storm event- po_line'.
+    No return value.
+
+    Args:
+        crit_storm_df: tp vs duration results to plot.
+    """
+
+    # Only plot tp columns, ignoring meta-stats column (e.g. Median).
+
+    fig, ax = plt.subplots()
+
+    name = crit_storm_df.name
+
     tp_cols = [col for col in crit_storm_df.columns if 'tp' in col]
-    print(crit_storm_df[tp_cols])
+
     for col in tp_cols:
         crit_storm_df[col] = crit_storm_df[col].astype(float)
 
-    ax = crit_storm_df[tp_cols].T.boxplot()
+    data = crit_storm_df[tp_cols].T
+    ax = sns.boxplot(data)
 
     ax.set_xlabel("Duration (m)")
-    ax.set_ylabel("Max Flow (cu.m/sec")
-    ax.legend()
+    ax.set_ylabel("Max Flow (cu.m/sec)")
+    ax.set_title(name)
 
-    ax.set_xlim(0, None)
-    ax.set_ylim(0, None)
-
-
-    ax.set_title(crit_storm_df.name)
-    plt.show()
+    # Save as png in local directory
+    plt.savefig(name + '.png')
 
 
 def main(input_path: str):
@@ -452,5 +464,5 @@ def main(input_path: str):
 
 
 if __name__ == '__main__':
-    input_dir = r"/home/Taha/Documents/po_line_outputs"
-    all_runs = main(input_dir)
+    input_dir = "pass"
+    main(input_dir)
