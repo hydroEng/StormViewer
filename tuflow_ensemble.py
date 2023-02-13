@@ -1,17 +1,19 @@
 import os
 import shutil
-
-import matplotlib.patches
 import pandas as pd
 import re
 import matplotlib as mpl
 from matplotlib import pyplot as plt
-from matplotlib.patches import Patch
 import seaborn as sns
 
 pd.set_option('display.max_rows', 500)
 pd.set_option('display.max_columns', 500)
 pd.set_option('display.width', 1000)
+
+
+# TODO:
+# Write logging function
+# Function to convert to valid filename
 
 
 def get_po_csvs(input_dir: str) -> list:
@@ -65,6 +67,7 @@ def copy_po_csvs(csv_filepaths: list[str]) -> list[str]:
         shutil.copy(path, target)
 
     # Filter out empty dataframes. This has to be done after copy due to file permissions.
+
     new_filepaths = []
 
     for path in filepaths:
@@ -338,7 +341,7 @@ def _tp_vs_max_flow_df(df: pd.DataFrame) -> tuple:
     dur_tp_df['Median'] = dur_tp_df[tp_cols].median(axis=1)
     dur_tp_df['Critical TP'] = dur_tp_df.apply(_get_crit_tp, axis=1)
 
-    dur_tp_df.name = f"{po_line}- {event} Event"
+    dur_tp_df.name = f"{po_line}: {event} Event"
 
     return event, po_line, dur_tp_df
 
@@ -375,7 +378,7 @@ def all_critical_storms(all_runs_df: pd.DataFrame) -> list[pd.DataFrame]:
         for y in x:
             event, po_line, df = _tp_vs_max_flow_df(y)
             sorted_df = _drop_sort_duration(df)
-            sorted_df.name = f"{event}- {po_line}"
+            sorted_df.name = f"{event}: {po_line}"
             all_crit_tp_dfs.append(sorted_df)
 
     return all_crit_tp_dfs
@@ -437,7 +440,7 @@ def plot_results(crit_storm_df: pd.DataFrame) -> None:
     ax.set_title(name)
 
     # Save as png in local directory
-    plt.savefig(name + '.png')
+    plt.savefig(name.replace(':', '-') + '.png')
 
 
 def main(input_path: str):
@@ -451,18 +454,23 @@ def main(input_path: str):
         all_max_flows.append(df1)
 
     df1 = concat_po_srs(all_max_flows)
+    print(df1)
     all_crit = all_critical_storms(df1)
 
     for df in all_crit:
+        print(df)
         plot_results(df)
 
     results_sr = []
     for df in all_crit:
         results_sr.append(summarize_results(df))
+    print(' \n\n\n\n\n ###### RESULTS ###### \n\n\n')
+    for i in results_sr:
+        print(i, '\n')
 
     results_df = pd.DataFrame(results_sr)
 
 
 if __name__ == '__main__':
-    input_dir = "pass"
+    input_dir = r"/home/Taha/Documents/po_line_outputs/"
     main(input_dir)
