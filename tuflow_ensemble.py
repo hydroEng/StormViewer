@@ -5,16 +5,14 @@ import re
 import matplotlib as mpl
 from matplotlib import pyplot as plt
 import seaborn as sns
+from datetime import datetime
+from logger import Logger
 
 pd.set_option('display.max_rows', 500)
 pd.set_option('display.max_columns', 500)
 pd.set_option('display.width', 1000)
 
-
-# TODO:
-# Write logging function
-# Function to convert to valid filename
-
+logger = Logger()
 
 def get_po_csvs(input_dir: str) -> list:
     """
@@ -412,6 +410,29 @@ def summarize_results(crit_tp_df: pd.DataFrame):
     return pd.Series(data=values, index=index)
 
 
+def _str_to_valid_filename(name: str) -> str:
+    """
+    Removes troublesome chars from filename. Tries not over-prescribe - keeps underscore and dash chars as this is
+    common in TUFLOW results files.
+
+    Args:
+        name: Proposed filename for cleaning.
+
+    Returns:
+        a string with more valid filename.
+    """
+
+    invalid_chars = r"%:/,\[]<>*?"
+    valid_name = ""
+
+    for c in name:
+        if c in invalid_chars:
+            c = '-'
+        valid_name += c
+
+    return valid_name
+
+
 def plot_results(crit_storm_df: pd.DataFrame) -> None:
     """
     Plotting function for critical storms dataframe. Plots to PNG file with filename in format 'storm event- po_line'.
@@ -439,8 +460,10 @@ def plot_results(crit_storm_df: pd.DataFrame) -> None:
     ax.set_ylabel("Max Flow (cu.m/sec)")
     ax.set_title(name)
 
+    filename = _str_to_valid_filename(name)
+
     # Save as png in local directory
-    plt.savefig(name.replace(':', '-') + '.png')
+    plt.savefig(filename + '.png')
 
 
 def main(input_path: str):
@@ -472,5 +495,5 @@ def main(input_path: str):
 
 
 if __name__ == '__main__':
-    input_dir = ""
+    input_dir = r"/home/Taha/Work Share/C01"
     main(input_dir)
