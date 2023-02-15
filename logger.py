@@ -1,18 +1,48 @@
 from datetime import datetime
 import os
 
-class Logger:
+import pandas
 
+
+class Logger:
     """ Class to manage log generation. Call as a function to initialize a new
     log. """
+
     def __init__(self):
         self.log_string = f"""TUFLOW Ensemble Log Generated on {datetime.now()}.
         \n===================================================================\n"""
 
-    def log(self, msg: str):
-        """ Add given msg to log """
+    def log(self, msg):
+        """ Add given message to log. Can handle pandas series/dataframes, strings, and lists of all the above. """
 
-        self.log_string += "\n" + msg + "\n"
+        def _write_any(msg):
+            self.log_string += "\n" + msg + "\n"
+
+        def _write_sr(msg: pandas.Series):
+            self.log_string += '\n' + msg.to_string() + '\n'
+
+        def _write_df(msg: pandas.DataFrame):
+            self.log_string += '\n' + msg.to_string() + '\n'
+
+        def _write_list(msg: list):
+
+            for i in msg:
+
+                if isinstance(i, pandas.Series):
+                    _write_sr(i)
+                elif isinstance(i, pandas.DataFrame):
+                    _write_df(i)
+                else:
+                    _write_any(i)
+
+        if isinstance(msg, pandas.Series):
+            _write_sr(msg)
+        elif isinstance(msg, pandas.DataFrame):
+            _write_df(msg)
+        elif isinstance(msg, list):
+            _write_list(msg)
+        else:
+            _write_any(msg)
 
     def print_log(self):
         """ Dump log text in current state to console. """

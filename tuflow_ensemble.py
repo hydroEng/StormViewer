@@ -467,8 +467,14 @@ def plot_results(crit_storm_df: pd.DataFrame) -> None:
 
 
 def main(input_path: str):
+
     raw_inputs = get_po_csvs(input_dir)
+    logger.log("Raw inputs from get_po_csvs:")
+    logger.log(raw_inputs)
+
     saved_inputs = copy_po_csvs(raw_inputs)
+    logger.log("Inputs copied to local folder:")
+    logger.log(saved_inputs)
 
     all_max_flows = []
 
@@ -477,21 +483,24 @@ def main(input_path: str):
         all_max_flows.append(df1)
 
     df1 = concat_po_srs(all_max_flows)
-    print(df1)
+    logger.log(df1)
+
     all_crit = all_critical_storms(df1)
+    logger.log(all_crit)
 
     for df in all_crit:
-        print(df)
         plot_results(df)
 
     results_sr = []
     for df in all_crit:
         results_sr.append(summarize_results(df))
-    print(' \n\n\n\n\n ###### RESULTS ###### \n\n\n')
-    for i in results_sr:
-        print(i, '\n')
+    logger.log(' \n\n\n###### RESULTS ###### \n\n\n')
 
     results_df = pd.DataFrame(results_sr)
+
+    logger.log(results_sr)
+
+    logger.write_to_txt(r"/home/Taha/")
 
 
 if __name__ == '__main__':
