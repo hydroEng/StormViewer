@@ -1,2 +1,4 @@
 /venv/
 /_local/
+/__pycache__/
+*.png
