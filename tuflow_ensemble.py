@@ -465,16 +465,28 @@ def plot_results(crit_storm_df: pd.DataFrame) -> None:
     # Save as png in local directory
     plt.savefig(filename + '.png')
 
+def _skipped_inputs(raw_inputs:list, saved_inputs:list)->list:
+    raw = [os.path.basename(i) for i in raw_inputs]
+    saved = [os.path.basename(i) for i in saved_inputs]
+
+    skipped = []
+
+    for r in raw:
+        if r not in saved:
+            skipped.append(r)
+
+    return skipped
+
 
 def main(input_path: str):
 
     raw_inputs = get_po_csvs(input_dir)
-    logger.log("Raw inputs from get_po_csvs:")
-    logger.log(raw_inputs)
 
     saved_inputs = copy_po_csvs(raw_inputs)
-    logger.log("Inputs copied to local folder:")
-    logger.log(saved_inputs)
+    logger.log(f"Inputs copied to local folder from source folder {input_path}:")
+    logger.log([os.path.basename(saved_input) for saved_input in saved_inputs])
+    logger.log("\nSkipped inputs:")
+    logger.log(_skipped_inputs(raw_inputs,saved_inputs))
 
     all_max_flows = []
 
