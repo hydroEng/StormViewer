@@ -12,8 +12,6 @@ pd.set_option('display.max_rows', 500)
 pd.set_option('display.max_columns', 500)
 pd.set_option('display.width', 1000)
 
-logger = Logger()
-
 
 def get_po_csvs(input_dir: str) -> list:
     """
@@ -256,7 +254,6 @@ def _split_event(df: pd.DataFrame) -> list[pd.DataFrame]:
 
 
 def _drop_sort_duration(df: pd.DataFrame) -> pd.DataFrame:
-    sorted_df = df
     """
     This function drops all non-numeric chars from the index ('Duration') column in dataframe and sorts the dataframe by 
     numeric value.
@@ -268,7 +265,7 @@ def _drop_sort_duration(df: pd.DataFrame) -> pd.DataFrame:
         a DataFrame sorted by duration (numeric value only).
 
     """
-
+    sorted_df = df
     # Remove alphabetical chars from minutes
     sorted_df.index = sorted_df.index.map(lambda x: (re.sub(r"[a-zA-Z]", "", str(x))))
     sorted_df.index = sorted_df.index.map(lambda x: int(x))
@@ -283,7 +280,8 @@ def _get_col_name(value, input_row):
 
 
 def _get_crit_tp(row: pd.Series) -> str:
-    """ This function is to be applied to processed dataframe of storm durations vs temporal patterns. Used
+    """
+    This function is to be applied to processed dataframe of storm durations vs temporal patterns. Used
     to create a new column with critical storms for each duration. Do not use by itself, used via dataframe apply()
     method!
 
@@ -292,7 +290,6 @@ def _get_crit_tp(row: pd.Series) -> str:
 
     Returns:
         a string containing name of column with critical storm.
-
     """
     median = row['Median']
 
@@ -434,13 +431,20 @@ def _str_to_valid_filename(name: str) -> str:
     return valid_name
 
 
-def plot_results(crit_storm_df: pd.DataFrame, output_path: str) -> None:
+def plot_results(crit_storm_df: pd.DataFrame,
+                 output_path: str,
+                 strip_plot=True) -> None:
     """
     Plotting function for critical storms dataframe. Plots to PNG file with filename in format 'storm event- po_line'.
     No return value.
 
     Args:
         crit_storm_df: tp vs duration results to plot.
+        output_path: Folder to generate all results.
+        strip_plot: Whether to show individual temporal patterns as points overlaid on each box. Defaults to True.
+    Returns:
+        No return value, outputs plots as files directly into output_path.
+
     """
 
     # Only plot tp columns, ignoring meta-stats column (e.g. Median).
@@ -455,7 +459,10 @@ def plot_results(crit_storm_df: pd.DataFrame, output_path: str) -> None:
         crit_storm_df[col] = crit_storm_df[col].astype(float)
 
     data = crit_storm_df[tp_cols].T
-    ax = sns.boxplot(data)
+    ax = sns.boxplot(data, color='lightyellow', saturation=1.0)
+
+    if strip_plot:
+        ax = sns.stripplot(data, palette='dark:black', jitter=0, size=3)
 
     ax.set_xlabel("Duration (m)")
     ax.set_ylabel("Max Flow (cu.m/sec)")
@@ -465,7 +472,9 @@ def plot_results(crit_storm_df: pd.DataFrame, output_path: str) -> None:
     filepath = os.path.join(output_path, filename)
 
     # Save as png in local directory
-    plt.savefig(filepath + '.png')
+    plt.savefig(filepath + '.png', dpi=200)
+
+    plt.close()
 
 
 def _skipped_inputs(raw_inputs: list, saved_inputs: list) -> list:
@@ -482,14 +491,20 @@ def _skipped_inputs(raw_inputs: list, saved_inputs: list) -> list:
 
 
 def main(input_path: str, output_path: str):
-    raw_inputs = get_po_csvs(input_dir)
+    # Create Log Object
+    logger = Logger()
 
+    # Read input folder and download/copy files
+    raw_inputs = get_po_csvs(input_path)
     saved_inputs = copy_po_csvs(raw_inputs)
+
+    # Log events
     logger.log(f"Inputs copied to local folder from source folder {input_path}:")
     logger.log([os.path.basename(saved_input) for saved_input in saved_inputs])
     logger.log("\nSkipped inputs:")
     logger.log(_skipped_inputs(raw_inputs, saved_inputs))
 
+    # Get max flows
     all_max_flows = []
 
     for csv in saved_inputs:
@@ -497,27 +512,39 @@ def main(input_path: str, output_path: str):
         all_max_flows.append(df1)
 
     df1 = concat_po_srs(all_max_flows)
+
+    # Log resulting maximum flows for all PO Lines
+
     logger.log(df1)
 
+    # Generate Dataframe with max flows / critical storm per PO Line
     all_crit = all_critical_storms(df1)
+
+    # Log critical storms
     logger.log(all_crit)
 
+    # Plot
     for df in all_crit:
         plot_results(df, output_path)
 
+    # Generate Results
     results_sr = []
+
     for df in all_crit:
         results_sr.append(summarize_results(df))
+
+    # Log results
     logger.log(' \n\n\n###### RESULTS ###### \n\n\n')
 
     results_df = pd.DataFrame(results_sr)
 
     logger.log(results_sr)
 
+    # Export log to file
     logger.write_to_txt(output_path)
 
 
-if __name__ == '__main__':
-    input_dir = r"C:\Users\Public\Turnbull Engineering\0373 K2A ECI - Docs\3. Design\Drainage and Flooding\2. GIS\Working\Critical Duration Analysis\C01_002"
-    output_dir = r"C:\Users\Public\OneDrive - Turnbull Engineering\Documents\TE tool results"
-    main(input_dir, output_dir)
+# if __name__ == '__main__':
+#     input_dir = ""
+#     output_dir = ""
+#     main(input_dir, output_dir)
