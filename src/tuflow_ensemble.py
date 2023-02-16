@@ -14,6 +14,7 @@ pd.set_option('display.width', 1000)
 
 logger = Logger()
 
+
 def get_po_csvs(input_dir: str) -> list:
     """
     This function detects TUFLOW PO csv outputs and saves their filepaths in a list.
@@ -433,7 +434,7 @@ def _str_to_valid_filename(name: str) -> str:
     return valid_name
 
 
-def plot_results(crit_storm_df: pd.DataFrame) -> None:
+def plot_results(crit_storm_df: pd.DataFrame, output_path: str) -> None:
     """
     Plotting function for critical storms dataframe. Plots to PNG file with filename in format 'storm event- po_line'.
     No return value.
@@ -461,11 +462,13 @@ def plot_results(crit_storm_df: pd.DataFrame) -> None:
     ax.set_title(name)
 
     filename = _str_to_valid_filename(name)
+    filepath = os.path.join(output_path, filename)
 
     # Save as png in local directory
-    plt.savefig(filename + '.png')
+    plt.savefig(filepath + '.png')
 
-def _skipped_inputs(raw_inputs:list, saved_inputs:list)->list:
+
+def _skipped_inputs(raw_inputs: list, saved_inputs: list) -> list:
     raw = [os.path.basename(i) for i in raw_inputs]
     saved = [os.path.basename(i) for i in saved_inputs]
 
@@ -478,15 +481,14 @@ def _skipped_inputs(raw_inputs:list, saved_inputs:list)->list:
     return skipped
 
 
-def main(input_path: str):
-
+def main(input_path: str, output_path: str):
     raw_inputs = get_po_csvs(input_dir)
 
     saved_inputs = copy_po_csvs(raw_inputs)
     logger.log(f"Inputs copied to local folder from source folder {input_path}:")
     logger.log([os.path.basename(saved_input) for saved_input in saved_inputs])
     logger.log("\nSkipped inputs:")
-    logger.log(_skipped_inputs(raw_inputs,saved_inputs))
+    logger.log(_skipped_inputs(raw_inputs, saved_inputs))
 
     all_max_flows = []
 
@@ -501,7 +503,7 @@ def main(input_path: str):
     logger.log(all_crit)
 
     for df in all_crit:
-        plot_results(df)
+        plot_results(df, output_path)
 
     results_sr = []
     for df in all_crit:
@@ -512,9 +514,10 @@ def main(input_path: str):
 
     logger.log(results_sr)
 
-    logger.write_to_txt(r"/home/Taha/")
+    logger.write_to_txt(output_path)
 
 
 if __name__ == '__main__':
-    input_dir = r"/home/Taha/Work Share/C01"
-    main(input_dir)
+    input_dir = r"C:\Users\Public\Turnbull Engineering\0373 K2A ECI - Docs\3. Design\Drainage and Flooding\2. GIS\Working\Critical Duration Analysis\C01_002"
+    output_dir = r"C:\Users\Public\OneDrive - Turnbull Engineering\Documents\TE tool results"
+    main(input_dir, output_dir)
