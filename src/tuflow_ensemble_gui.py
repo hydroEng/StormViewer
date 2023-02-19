@@ -75,8 +75,8 @@ class App(QWidget):
         # Horizontal Layout for Help / About buttons
 
         self.help_about_links = QLabel(self)
-        self.help_about_links.setText("<a href=\"https://github.com/suryaya/tuflow_ensemble/blob/master/USER_MANUAL.md\">Help</a> | "
-                                      "<a href=\"https://github.com/suryaya/tuflow_ensemble/\">About</a>")
+        self.help_about_links.setText("<a href=\"https://github.com/hydroEng/tuflow_ensemble/blob/master/USER_MANUAL.md\">Help</a> | "
+                                      "<a href=\"https://github.com/hydroEng/tuflow_ensemble/\">About</a>")
 
         about_font = QFont()
         about_font.setPointSize(8)
