@@ -1,7 +1,7 @@
 from PyQt6 import QtCore
 from PyQt6.QtGui import QPalette, QColor, QFont, QPixmap
 from PyQt6.QtWidgets import QMessageBox, QApplication, QWidget, QFileDialog, QPushButton, QLabel, QVBoxLayout, QHBoxLayout
-from PyQt6.QtCore import QObject, QThread, QThreadPool, QRunnable, pyqtSignal, pyqtSlot
+from PyQt6.QtCore import QObject, QThreadPool, QRunnable, pyqtSignal, pyqtSlot
 
 import sys
 import tuflow_ensemble
@@ -73,8 +73,8 @@ class App(QWidget):
         # Horizontal Layout for Help / About buttons
 
         self.help_about_links = QLabel(self)
-        self.help_about_links.setText("<a href=\"https://github.com/suryaya/tuflow_ensemble\">Help</a> | "
-                                      "About")
+        self.help_about_links.setText("<a href=\"https://github.com/suryaya/tuflow_ensemble/blob/master/USER_MANUAL.md\">Help</a> | "
+                                      "<a href=\"https://github.com/suryaya/tuflow_ensemble/\">About</a>")
 
         about_font = QFont()
         about_font.setPointSize(8)
