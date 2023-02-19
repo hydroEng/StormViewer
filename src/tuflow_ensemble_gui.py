@@ -1,5 +1,5 @@
 from PyQt6 import QtCore
-from PyQt6.QtGui import QPalette, QColor, QFont, QPixmap
+from PyQt6.QtGui import QPalette, QColor, QFont, QPixmap, QIcon
 from PyQt6.QtWidgets import QMessageBox, QApplication, QWidget, QFileDialog, QPushButton, QLabel, QVBoxLayout, QHBoxLayout
 from PyQt6.QtCore import QObject, QThreadPool, QRunnable, pyqtSignal, pyqtSlot
 
@@ -41,6 +41,8 @@ class App(QWidget):
         super().__init__()
 
         self.title = 'TUFLOW Ensemble Tool'
+        self.setWindowIcon(QIcon(r"assets/rain-svgrepo-com.svg"))
+        windowIcon = QIcon(r"assets/rain-svgrepo-com.svg")
 
         self.left = 10
         self.top = 10
