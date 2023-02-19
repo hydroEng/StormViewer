@@ -22,7 +22,7 @@ This tool parses the filename of your \*_PO.csv files to interpret storm event /
 2. Duration is the number(s) preceding "m_" in your filename
 3. Temporal Pattern is the number(s) after the string "tp" in your filename.
 
-As such, a po line CSV result named "Example-Catchment_0.5EY_360m_tp07_no-blockages.csv" would be understood to be Event 0.5EY, Duration 360 minutes and Temporal Pattern 7.
+As such, a po line CSV result named "Example-Catchment_0.5EY_360m_tp07_no-blockages_001_PO.csv" would be understood to be Event 0.5EY, Duration 360 minutes and Temporal Pattern 7.
 
 # Reporting Bugs
 
