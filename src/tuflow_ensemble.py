@@ -119,7 +119,7 @@ def _parse_run_id(run_id: str) -> tuple[str, str, str]:
 
     run_id_l = run_id.lower()
 
-    storm = re.search(r"\d{2,4}[.]?\d?y", run_id_l).group()
+    storm = re.search(r"_.*?_", run_id_l).group().replace("_","") # Will match the string between the first two underscores.
     duration = re.search(r"\d{1,4}m", run_id_l).group()
     temp_patt = re.search(r"tp\d*", run_id_l).group()
 
