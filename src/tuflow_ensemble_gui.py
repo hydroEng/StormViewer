@@ -1,7 +1,8 @@
 from PyQt6 import QtCore
 from PyQt6.QtGui import QPalette, QColor, QFont, QPixmap
-from PyQt6.QtWidgets import QMessageBox, QApplication, QWidget, QFileDialog, QPushButton, QLabel, QVBoxLayout
+from PyQt6.QtWidgets import QMessageBox, QApplication, QWidget, QFileDialog, QPushButton, QLabel, QVBoxLayout, QHBoxLayout
 from PyQt6.QtCore import QObject, QThread, QThreadPool, QRunnable, pyqtSignal, pyqtSlot
+
 import sys
 import tuflow_ensemble
 
@@ -50,8 +51,6 @@ class App(QWidget):
 
         self.initUI()
 
-
-
     def initUI(self):
 
         self.setWindowTitle(self.title)
@@ -71,18 +70,21 @@ class App(QWidget):
         self.title_label.setFont(label_font)
         self.title_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignHCenter)
 
-        # Help
+        # Horizontal Layout for Help / About buttons
 
-        self.help_label = QLabel(self)
-        self.help_label.setText("Help | About")
+        self.help_about_links = QLabel(self)
+        self.help_about_links.setText("<a href=\"https://github.com/suryaya/tuflow_ensemble\">Help</a> | "
+                                      "About")
 
-        label_font = QFont()
-        label_font.setPointSize(8)
+        about_font = QFont()
+        about_font.setPointSize(8)
 
-        self.help_label.setFont(label_font)
-        self.help_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignHCenter)
+        self.help_about_links.setFont(about_font)
+        self.help_about_links.setAlignment(QtCore.Qt.AlignmentFlag.AlignHCenter)
 
-        # Add app icon
+        self.help_about_links.setOpenExternalLinks(True)
+
+        # Add App Icon
 
         self.app_icon_label = QLabel(self)
         self.app_icon = QPixmap(r"assets/rain-svgrepo-com.svg").scaledToWidth(80)
@@ -91,7 +93,6 @@ class App(QWidget):
 
         self.app_icon_label.setPixmap(self.app_icon)
         self.app_icon_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-
 
         # Input Directory Field
         self.input_dir = QLabel(self)
@@ -119,7 +120,7 @@ class App(QWidget):
         # Vertical layout
         layout = QVBoxLayout()
         layout.addWidget(self.title_label)
-        layout.addWidget(self.help_label)
+        layout.addWidget(self.help_about_links)
         layout.addWidget(self.app_icon_label)
         layout.addWidget(self.input_dir)
         layout.addWidget(self.input_dir_btn)
@@ -165,6 +166,11 @@ class App(QWidget):
         self.threadpool.start(self.worker.run)
         self.worker.signals.finished.connect(self.update_button)
 
+    def about(self):
+        about_dialog = QMessageBox(self)
+        about_dialog.setWindowTitle("About")
+        about_dialog.setText("Version: 1.0\nReport Bugs: https://github.com/suryaya/tuflow_ensemble")
+        about_dialog.exec()
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
