@@ -16,7 +16,7 @@ Critical storms/temporal patterns for each PO line and event will be listed at t
 
 ### A note on filename conventions
 
-This tool parses the filename of your \*_PO.csv files to interpret storm event / duration / temporal pattern. As such, your csv files should be named so that your storm event, duration and temporal pattern is separated by underscores. This tool looks for the following (NOT case sensitive):
+This tool parses the filename of your \*_PO.csv files to interpret storm event / duration / temporal pattern. As such, your csv files should be named so that your storm event, duration and temporal pattern are separated by underscores. This tool looks for the following (NOT case sensitive):
 
 1. Storm Event is the text between the first and second underscores in your filename.
 2. Duration is the number(s) preceding "m_" in your filename
