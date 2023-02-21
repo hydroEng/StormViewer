@@ -1,6 +1,6 @@
 from PyQt6 import QtCore
 from PyQt6.QtGui import QPalette, QColor, QFont, QPixmap, QIcon
-from PyQt6.QtWidgets import QMessageBox, QApplication, QWidget, QFileDialog, QPushButton, QLabel, QVBoxLayout, QHBoxLayout
+from PyQt6.QtWidgets import QFrame, QMessageBox, QApplication, QWidget, QFileDialog, QPushButton, QLabel, QVBoxLayout, QHBoxLayout
 from PyQt6.QtCore import QObject, QThreadPool, QRunnable, pyqtSignal, pyqtSlot
 
 import sys
@@ -41,6 +41,7 @@ class App(QWidget):
         super().__init__()
 
         self.title = 'TUFLOW Ensemble Tool'
+
         self.setWindowIcon(QIcon(r"assets/rain-svgrepo-com.svg"))
         windowIcon = QIcon(r"assets/rain-svgrepo-com.svg")
 
@@ -57,6 +58,7 @@ class App(QWidget):
 
         self.setWindowTitle(self.title)
         self.setFixedWidth(self.width)
+        self.setMinimumHeight(340)
 
         # Title of app in UI Window
 
@@ -72,7 +74,7 @@ class App(QWidget):
         self.title_label.setFont(label_font)
         self.title_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignHCenter)
 
-        # Horizontal Layout for Help / About buttons
+        # Help / About Links
 
         self.help_about_links = QLabel(self)
         self.help_about_links.setText("<a href=\"https://github.com/hydroEng/tuflow_ensemble/blob/master/USER_MANUAL.md\">Help</a> | "
@@ -96,6 +98,10 @@ class App(QWidget):
         self.app_icon_label.setPixmap(self.app_icon)
         self.app_icon_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
 
+        # VBoxLayout for Inputs
+
+        self.input_frame  = QVBoxLayout()
+
         # Input Directory Field
         self.input_dir = QLabel(self)
         self.input_dir.setText("Select Input Folder with *PO.csv Files:")
@@ -112,6 +118,20 @@ class App(QWidget):
         self.output_dir_btn = QPushButton('Select', self)
         self.output_dir_btn.clicked.connect(self.get_output_dir)
 
+        # Add input widgets to VBoxLayout
+
+        self.input_frame.addWidget(self.input_dir)
+        self.input_frame.addWidget(self.input_dir_btn)
+        self.input_frame.addWidget(self.output_dir)
+        self.input_frame.addWidget(self.output_dir_btn)
+
+
+        # Separator
+
+        self.separator = QFrame()
+        self.separator.setFrameShape(QFrame.Shape.HLine)
+        self.separator.setFrameShadow(QFrame.Shadow.Sunken)
+
         # Run Button
 
         self.run_btn = QPushButton(self)
@@ -124,10 +144,12 @@ class App(QWidget):
         layout.addWidget(self.title_label)
         layout.addWidget(self.help_about_links)
         layout.addWidget(self.app_icon_label)
-        layout.addWidget(self.input_dir)
-        layout.addWidget(self.input_dir_btn)
-        layout.addWidget(self.output_dir)
-        layout.addWidget(self.output_dir_btn)
+        layout.addLayout(self.input_frame)
+        # layout.addWidget(self.input_dir)
+        # layout.addWidget(self.input_dir_btn)
+        # layout.addWidget(self.output_dir)
+        # layout.addWidget(self.output_dir_btn)
+        layout.addWidget(self.separator)
         layout.addWidget(self.run_btn)
 
         self.setLayout(layout)
@@ -155,6 +177,14 @@ class App(QWidget):
             self.run_btn.setEnabled(True)
             self.run_btn.setText('Run')
             self.run_btn.update()
+    #
+    # def check_inputs(self):
+    #
+    #
+    #     input_dir_path = self.input_dir.text().split(": ")[1]
+    #     output_dir_path = self.output_dir.text().split(": ")[1]
+    #
+    #     if in
 
     def run_main(self):
 
