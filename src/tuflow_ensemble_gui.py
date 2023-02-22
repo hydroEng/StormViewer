@@ -2,9 +2,21 @@ from PyQt6 import QtCore
 from PyQt6.QtGui import QPalette, QColor, QFont, QPixmap, QIcon
 from PyQt6.QtWidgets import QFrame, QMessageBox, QApplication, QWidget, QFileDialog, QPushButton, QLabel, QVBoxLayout, QHBoxLayout
 from PyQt6.QtCore import QObject, QThreadPool, QRunnable, pyqtSignal, pyqtSlot
-
+import os
 import sys
 import tuflow_ensemble
+
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller.
+     From https://stackoverflow.com/questions/31836104/pyinstaller-and-onefile-how-to-include-an-image-in-the-exe-file"""
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
+
 
 class WorkerSignals(QObject):
 
@@ -41,9 +53,9 @@ class App(QWidget):
         super().__init__()
 
         self.title = 'TUFLOW Ensemble Tool'
+        self.iconPath = resource_path("assets/rain-svgrepo-com.svg")
 
-        self.setWindowIcon(QIcon(r"assets/rain-svgrepo-com.svg"))
-        windowIcon = QIcon(r"assets/rain-svgrepo-com.svg")
+        self.setWindowIcon(QIcon(self.iconPath))
 
         self.left = 10
         self.top = 10
@@ -58,12 +70,12 @@ class App(QWidget):
 
         self.setWindowTitle(self.title)
         self.setFixedWidth(self.width)
-        self.setMinimumHeight(340)
+        self.setMinimumHeight(330)
 
         # Title of app in UI Window
 
         self.title_label = QLabel(self)
-        self.title_label.setText("TUFLOW Ensemble Tool")
+        self.title_label.setText("TUFLOW Ensemble Tool v.1.0")
 
         # Set title label formatting
 
@@ -91,7 +103,7 @@ class App(QWidget):
         # Add App Icon
 
         self.app_icon_label = QLabel(self)
-        self.app_icon = QPixmap(r"assets/rain-svgrepo-com.svg").scaledToWidth(80)
+        self.app_icon = QPixmap(self.iconPath).scaledToWidth(80)
 
         # Format app icon
 
