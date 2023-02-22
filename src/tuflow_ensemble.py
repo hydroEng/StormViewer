@@ -492,17 +492,19 @@ def _skipped_inputs(raw_inputs: list, saved_inputs: list) -> list:
 
 def main(input_path: str, output_path: str):
     # Create Log Object
-    logger = Logger()
+    log_file = Logger()
+    results_file = Logger()
+
 
     # Read input folder and download/copy files
     raw_inputs = get_po_csvs(input_path)
     saved_inputs = copy_po_csvs(raw_inputs)
 
     # Log events
-    logger.log(f"Inputs copied to local folder from source folder {input_path}:")
-    logger.log([os.path.basename(saved_input) for saved_input in saved_inputs])
-    logger.log("\nSkipped inputs:")
-    logger.log(_skipped_inputs(raw_inputs, saved_inputs))
+    log_file.log(f"Inputs copied to local folder from source folder {input_path}:")
+    log_file.log([os.path.basename(saved_input) for saved_input in saved_inputs])
+    log_file.log("\nSkipped inputs:")
+    log_file.log(_skipped_inputs(raw_inputs, saved_inputs))
 
     # Get max flows
     all_max_flows = []
@@ -515,13 +517,13 @@ def main(input_path: str, output_path: str):
 
     # Log resulting maximum flows for all PO Lines
 
-    logger.log(df1)
+    log_file.log(df1)
 
     # Generate Dataframe with max flows / critical storm per PO Line
     all_crit = all_critical_storms(df1)
 
     # Log critical storms
-    logger.log(all_crit)
+    log_file.log(all_crit)
 
     # Plot
     for df in all_crit:
@@ -534,14 +536,15 @@ def main(input_path: str, output_path: str):
         results_sr.append(summarize_results(df))
 
     # Log results
-    logger.log(' \n\n\n###### RESULTS ###### \n\n\n')
+    results_file.log(' \n\n\n###### RESULTS ###### \n\n\n')
 
     results_df = pd.DataFrame(results_sr)
 
-    logger.log(results_sr)
+    results_file.log(results_sr)
 
     # Export log to file
-    logger.write_to_txt(output_path)
+    log_file.write_to_txt(output_path, 'log.txt')
+    results_file.write_to_txt(output_path, 'results.txt')
 
 
 # if __name__ == '__main__':

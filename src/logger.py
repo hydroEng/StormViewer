@@ -8,7 +8,7 @@ class Logger:
     log. """
 
     def __init__(self):
-        self.log_string = f"""TUFLOW Ensemble Log Generated on {datetime.now()}.
+        self.log_string = f"""TUFLOW Ensemble Tool Output File Generated on {datetime.now()}.\nhttps://github.com/hydroEng/tuflow_ensemble
         \n===================================================================\n"""
 
     def log(self, msg):
@@ -54,10 +54,10 @@ class Logger:
 
         print(self.log_string)
 
-    def write_to_txt(self, output_folder):
-        """ Output log as a .txt file in specified folder. """
+    def write_to_txt(self, output_dir, filename):
+        """ Output log as a text file to specified folder.  """
 
-        filename = os.path.join(output_folder, 'log.txt')
+        filepath= os.path.join(output_dir, filename)
 
-        with open(filename, 'w+') as f:
+        with open(filepath, 'w+') as f:
             f.write(self.log_string)
