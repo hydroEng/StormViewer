@@ -18,4 +18,15 @@ Critical storms:
 
 Plot:
 
-<img src="https://raw.githubusercontent.com/hydroEng/tuflow_ensemble/master/src/assets/010.0y-%20Max%20Flow%20Location1.png" alt="Sample plot">
+<img src="https://raw.githubusercontent.com/hydroEng/tuflow_ensemble/master/src/assets/100.0y-%20Max%20Flow%20Location1.png" alt="Sample plot" width="50%" height="50%">
+
+
+# Reporting Bugs
+
+Please create a github issue if you encounter any bugs or want to make suggestions.
+
+There are some known limitations with the tool at the moment:
+
+- There cannot be more than one critical storm for single duration. This is not likely to happen anyway, but will be fixed in future releases if there is interest.
+- Changing the default colour / layout of generated plots is not yet possible.  
+- All durations must have the same number of temporal patterns. 
