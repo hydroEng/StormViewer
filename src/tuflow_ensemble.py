@@ -294,6 +294,10 @@ def _get_crit_tp(row: pd.Series) -> str:
     median = row['Median']
 
     diffs = {}
+
+    # Skip nan values that occur because of missing results for a particular temporal pattern / duration csv.
+    row = row.dropna()
+
     for cell in row:
         col_name = _get_col_name(cell, row)
         if 'tp' in col_name:
@@ -328,7 +332,6 @@ def _tp_vs_max_flow_df(df: pd.DataFrame) -> tuple:
             po_line = str(column)
 
     dur_tp_df = df.pivot(index='Duration', columns='Temporal Pattern', values=po_line)
-    dur_tp_df = dur_tp_df.fillna(0)
     dur_tp_df = _drop_sort_duration(dur_tp_df)
 
     tp_cols = [col for col in dur_tp_df.columns if 'tp' in col]
