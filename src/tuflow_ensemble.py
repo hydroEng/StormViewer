@@ -560,7 +560,7 @@ def main(input_path: str, output_path: str):
     results_file.write_to_txt(output_path, 'results.txt')
 
 
-if __name__ == '__main__':
-    input_dir = r"/home/Taha/Work Share/C01_002/"
-    output_dir = "/home/Taha/results/"
-    main(input_dir, output_dir)
+# if __name__ == '__main__':
+#     input_dir = ""
+#     output_dir = ""
+#     main(input_dir, output_dir)
