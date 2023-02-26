@@ -75,7 +75,7 @@ class App(QWidget):
         # Title of app in UI Window
 
         self.title_label = QLabel(self)
-        self.title_label.setText("TUFLOW Ensemble Tool v.1.0")
+        self.title_label.setText("TUFLOW Ensemble Tool v.1.1")
 
         # Set title label formatting
 
