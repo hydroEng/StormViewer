@@ -21,7 +21,13 @@ class Logger:
             self.log_string += '\n' + msg.to_string() + '\n'
 
         def _write_df(msg: pandas.DataFrame):
-            self.log_string += '\n' + msg.to_string() + '\n'
+
+            try:
+                name = str(msg.name) + "\n"
+            except AttributeError:
+                name = ""
+
+            self.log_string += '\n' + name + msg.to_string() + '\n'
 
         def _write_none():
             self.log_string += '\n' + "None" + '\n'
@@ -57,7 +63,7 @@ class Logger:
     def write_to_txt(self, output_dir, filename):
         """ Output log as a text file to specified folder.  """
 
-        filepath= os.path.join(output_dir, filename)
+        filepath = os.path.join(output_dir, filename)
 
         with open(filepath, 'w+') as f:
             f.write(self.log_string)
