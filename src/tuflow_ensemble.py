@@ -304,7 +304,14 @@ def _get_crit_tp(row: pd.Series) -> str:
             diffs[col_name] = (cell - median)
 
     positive_diffs = {k: v for k, v in diffs.items() if v > 0}
-    crit_tp = min(positive_diffs, key=positive_diffs.get)
+
+    try:
+        crit_tp = min(positive_diffs, key=positive_diffs.get)
+    except ValueError:
+        # Handle cases where there's no storm above the median value (i.e.all temporal pattern flows == Median).
+        # In this case the function will grab the first storm that matches the median value. In the future a warning
+        # should be raised.
+        crit_tp = 'NA'
 
     return crit_tp
 
@@ -403,7 +410,10 @@ def summarize_results(crit_tp_df: pd.DataFrame):
     event, po_line = str(crit_tp_df.name).split(':', 1)
     po_line = po_line.replace('Max Flow ', "")
 
-    crit_max_flow = crit_tp_df.loc[crit_duration, crit_tp]
+    if crit_tp == 'NA':
+        crit_max_flow = 'NA'
+    else:
+        crit_max_flow = crit_tp_df.loc[crit_duration, crit_tp]
 
     index = ['Event', 'PO Line', 'Critical Duration', 'Critical TP', 'Critical TP Flow']
     values = [event, po_line, crit_duration, crit_tp, crit_max_flow]
@@ -550,7 +560,7 @@ def main(input_path: str, output_path: str):
     results_file.write_to_txt(output_path, 'results.txt')
 
 
-# if __name__ == '__main__':
-#     input_dir = ""
-#     output_dir = ""
-#     main(input_dir, output_dir)
+if __name__ == '__main__':
+    input_dir = r"/home/Taha/Work Share/C01_002/"
+    output_dir = "/home/Taha/results/"
+    main(input_dir, output_dir)
