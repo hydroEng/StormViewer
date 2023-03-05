@@ -1,6 +1,0 @@
-"Example_010.0Y_90m_tp07_001","Location","Flow","Water Level","Water Level","Velocity"
-"C:\Users\Public\Documents\Example\TUFLOW\runs\Example_~e1~_~e2~_~e3~_001.tcf","Time","Location1","Location1","Location1","Location1"
-"C:\Users\Public\Documents\Example\TUFLOW\results\Example_010.0Y_90m_tp07_001_POMM.csv","Maximum (Extracted from Time Series)",          2.2392,         42.7098,         41.5093,          0.4181
-"","Time of Maximum",          1.3833,          1.5000,          4.0000,          0.8667
-"","Minimum (Extracted From Time Series)",         -0.0121,          0.0000,          0.0000,          0.0000
-"","Time of Minimum",          2.7833,          0.0000,          0.0000,          0.0000
