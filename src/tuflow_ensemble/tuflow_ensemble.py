@@ -2,11 +2,9 @@ import os
 import shutil
 import pandas as pd
 import re
-import matplotlib as mpl
 from matplotlib import pyplot as plt
 import seaborn as sns
-from datetime import datetime
-from logger import Logger
+from tuflow_ensemble.logger import Logger
 
 pd.set_option('display.max_rows', 500)
 pd.set_option('display.max_columns', 500)

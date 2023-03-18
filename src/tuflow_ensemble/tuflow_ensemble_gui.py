@@ -4,7 +4,6 @@ from PyQt6.QtWidgets import QFrame, QMessageBox, QApplication, QWidget, QFileDia
 from PyQt6.QtCore import QObject, QThreadPool, QRunnable, pyqtSignal, pyqtSlot
 import os
 import sys
-import tuflow_ensemble
 
 def resource_path(relative_path):
     """ Get absolute path to resource, works for dev and for PyInstaller.
@@ -189,14 +188,6 @@ class App(QWidget):
             self.run_btn.setEnabled(True)
             self.run_btn.setText('Run')
             self.run_btn.update()
-    #
-    # def check_inputs(self):
-    #
-    #
-    #     input_dir_path = self.input_dir.text().split(": ")[1]
-    #     output_dir_path = self.output_dir.text().split(": ")[1]
-    #
-    #     if in
 
     def run_main(self):
 
@@ -213,7 +204,7 @@ class App(QWidget):
     def about(self):
         about_dialog = QMessageBox(self)
         about_dialog.setWindowTitle("About")
-        about_dialog.setText("Version: 1.0\nReport Bugs: https://github.com/suryaya/tuflow_ensemble")
+        about_dialog.setText("Version: 1.0\nReport Bugs: https://github.com/hydroEng/tuflow_ensemble")
         about_dialog.exec()
 
 if __name__ == '__main__':
