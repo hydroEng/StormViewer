@@ -12,8 +12,10 @@ jobs:
         strategy:
             matrix:
                 python-version: ['3.9', '3.10', '3.11']
+
         steps:
         - uses: actions/checkout@v2
+
         - name: Set up Python versions
           uses: actions/setup-python@v2
           with:
@@ -21,6 +23,7 @@ jobs:
 
         - name: Install dependencies
           run: pip install -r requirements.txt
+
         - name: Install local module
           run: pip install -e .
 
