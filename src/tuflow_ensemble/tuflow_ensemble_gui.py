@@ -1,14 +1,25 @@
 from PyQt6 import QtCore
 from PyQt6.QtGui import QPalette, QColor, QFont, QPixmap, QIcon
-from PyQt6.QtWidgets import QFrame, QMessageBox, QApplication, QWidget, QFileDialog, QPushButton, QLabel, QVBoxLayout, QHBoxLayout
+from PyQt6.QtWidgets import (
+    QFrame,
+    QMessageBox,
+    QApplication,
+    QWidget,
+    QFileDialog,
+    QPushButton,
+    QLabel,
+    QVBoxLayout,
+    QHBoxLayout,
+)
 from PyQt6.QtCore import QObject, QThreadPool, QRunnable, pyqtSignal, pyqtSlot
 import os
 import sys
 from tuflow_ensemble import te
 
+
 def resource_path(relative_path):
-    """ Get absolute path to resource, works for dev and for PyInstaller.
-     From https://stackoverflow.com/questions/31836104/pyinstaller-and-onefile-how-to-include-an-image-in-the-exe-file"""
+    """Get absolute path to resource, works for dev and for PyInstaller.
+    From https://stackoverflow.com/questions/31836104/pyinstaller-and-onefile-how-to-include-an-image-in-the-exe-file"""
     try:
         # PyInstaller creates a temp folder and stores path in _MEIPASS
         base_path = sys._MEIPASS
@@ -27,11 +38,14 @@ class WorkerSignals(QObject):
         Send signal that QRunnable has finished execution.
 
     """
+
     finished = QtCore.pyqtSignal()
+
 
 class TuflowEnsemble(QRunnable):
 
-    """ Worker Thread for main function"""
+    """Worker Thread for main function"""
+
     def __init__(self, input_dir_path, output_dir_path):
         super(TuflowEnsemble, self).__init__()
         self.input_dir_path = input_dir_path
@@ -47,12 +61,12 @@ class TuflowEnsemble(QRunnable):
         # Sent finished signal to GUI App
         self.signals.finished.emit()
 
-class App(QWidget):
 
+class App(QWidget):
     def __init__(self):
         super().__init__()
 
-        self.title = 'TUFLOW Ensemble Tool'
+        self.title = "TUFLOW Ensemble Tool"
         self.iconPath = resource_path("assets/rain-svgrepo-com.svg")
 
         self.setWindowIcon(QIcon(self.iconPath))
@@ -89,8 +103,10 @@ class App(QWidget):
         # Help / About Links
 
         self.help_about_links = QLabel(self)
-        self.help_about_links.setText("<a href=\"https://github.com/hydroEng/tuflow_ensemble/blob/master/USER_MANUAL.md\">Help</a> | "
-                                      "<a href=\"https://github.com/hydroEng/tuflow_ensemble/\">About</a>")
+        self.help_about_links.setText(
+            '<a href="https://github.com/hydroEng/tuflow_ensemble/blob/master/USER_MANUAL.md">Help</a> | '
+            '<a href="https://github.com/hydroEng/tuflow_ensemble/">About</a>'
+        )
 
         about_font = QFont()
         about_font.setPointSize(8)
@@ -112,14 +128,14 @@ class App(QWidget):
 
         # VBoxLayout for Inputs
 
-        self.input_frame  = QVBoxLayout()
+        self.input_frame = QVBoxLayout()
 
         # Input Directory Field
         self.input_dir = QLabel(self)
         self.input_dir.setText("Select Input Folder with *PO.csv Files:")
         self.input_dir.setAlignment(QtCore.Qt.AlignmentFlag.AlignBottom)
 
-        self.input_dir_btn = QPushButton('Select', self)
+        self.input_dir_btn = QPushButton("Select", self)
         self.input_dir_btn.clicked.connect(self.get_input_dir)
 
         # Output Directory Field
@@ -127,7 +143,7 @@ class App(QWidget):
         self.output_dir.setText("Select Output Directory:")
         self.output_dir.setAlignment(QtCore.Qt.AlignmentFlag.AlignBottom)
 
-        self.output_dir_btn = QPushButton('Select', self)
+        self.output_dir_btn = QPushButton("Select", self)
         self.output_dir_btn.clicked.connect(self.get_output_dir)
 
         # Add input widgets to VBoxLayout
@@ -136,7 +152,6 @@ class App(QWidget):
         self.input_frame.addWidget(self.input_dir_btn)
         self.input_frame.addWidget(self.output_dir)
         self.input_frame.addWidget(self.output_dir_btn)
-
 
         # Separator
 
@@ -147,7 +162,7 @@ class App(QWidget):
         # Run Button
 
         self.run_btn = QPushButton(self)
-        self.run_btn.setText('Run')
+        self.run_btn.setText("Run")
 
         self.run_btn.clicked.connect(self.run_main)
 
@@ -181,13 +196,13 @@ class App(QWidget):
         self.adjustSize()
 
     def update_button(self):
-        if self.run_btn.text() == 'Run':
+        if self.run_btn.text() == "Run":
             self.run_btn.setDisabled(True)
-            self.run_btn.setText('Running...')
+            self.run_btn.setText("Running...")
             self.run_btn.update()
         else:
             self.run_btn.setEnabled(True)
-            self.run_btn.setText('Run')
+            self.run_btn.setText("Run")
             self.run_btn.update()
 
     def run_main(self):
@@ -197,7 +212,7 @@ class App(QWidget):
 
         self.update_button()
 
-        self.worker = TuflowEnsemble(input_dir_path,output_dir_path)
+        self.worker = TuflowEnsemble(input_dir_path, output_dir_path)
 
         self.threadpool.start(self.worker.run)
         self.worker.signals.finished.connect(self.update_button)
@@ -205,10 +220,13 @@ class App(QWidget):
     def about(self):
         about_dialog = QMessageBox(self)
         about_dialog.setWindowTitle("About")
-        about_dialog.setText("Version: 1.0\nReport Bugs: https://github.com/hydroEng/tuflow_ensemble")
+        about_dialog.setText(
+            "Version: 1.0\nReport Bugs: https://github.com/hydroEng/tuflow_ensemble"
+        )
         about_dialog.exec()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     app = QApplication(sys.argv)
     ex = App()
     ex.show()
