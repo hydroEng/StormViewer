@@ -4,7 +4,7 @@ import pandas as pd
 import re
 from matplotlib import pyplot as plt
 import seaborn as sns
-from tuflow_ensemble.logger import Logger
+from tuflow_ensemble import logger
 
 pd.set_option('display.max_rows', 500)
 pd.set_option('display.max_columns', 500)
@@ -502,8 +502,8 @@ def _skipped_inputs(raw_inputs: list, saved_inputs: list) -> list:
 
 def main(input_path: str, output_path: str):
     # Create Log Object
-    log_file = Logger()
-    results_file = Logger()
+    log_file = logger.Logger()
+    results_file = logger.Logger()
 
 
     # Read input folder and download/copy files

@@ -4,6 +4,7 @@ from PyQt6.QtWidgets import QFrame, QMessageBox, QApplication, QWidget, QFileDia
 from PyQt6.QtCore import QObject, QThreadPool, QRunnable, pyqtSignal, pyqtSlot
 import os
 import sys
+from tuflow_ensemble import te
 
 def resource_path(relative_path):
     """ Get absolute path to resource, works for dev and for PyInstaller.
@@ -41,7 +42,7 @@ class TuflowEnsemble(QRunnable):
     def run(self):
 
         print(self.input_dir_path)
-        tuflow_ensemble.main(self.input_dir_path, self.output_dir_path)
+        te.main(self.input_dir_path, self.output_dir_path)
 
         # Sent finished signal to GUI App
         self.signals.finished.emit()
