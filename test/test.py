@@ -29,5 +29,27 @@ class testParseStormName(unittest.TestCase):
         self.assertEqual(expected_tuple, actual_tuple)
 
 
+class testCritStorm(unittest.TestCase):
+    # This test checks whether critical storms are being calculated properly.
+    def test_critical_storm_df(self):
+        df = pd.read_pickle(os.path.join(wd, "100y_sample_maxflows.pickle"))
+        expected = [
+            "tp07",
+            "tp08",
+            "tp04",
+            "tp07",
+            "tp06",
+            "tp06",
+            "tp06",
+            "tp09",
+            "tp10",
+            "tp02",
+            "tp03",
+        ]
+        df["Critical Storm"] = df.apply(tuflow_ensemble._get_crit_tp, axis=1)
+        actual = df["Critical Storm"].tolist()
+        self.assertEqual(expected, actual)
+
+
 if __name__ == "__main__":
     unittest.main()
