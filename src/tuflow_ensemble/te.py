@@ -14,15 +14,14 @@ pd.set_option("display.width", 1000)
 def _header_length(input_csv: str):
     """ Function to get header length """
 
-    with open(input_csv) as file:
+    with open(input_csv, 'r') as file:
         reader = csv.reader(file)
         head = next(reader)
-
         return len(head)
 
 def _header_col(input_csv: str):
     """ Function to grab the row number of the header columns in the csv file"""
-    with open(input_csv) as file:
+    with open(input_csv, 'r') as file:
         reader = csv.reader(file)
 
         rows = [row for row in reader]
@@ -59,7 +58,6 @@ def _create_local_folder(dir_name: str):
 
     os.mkdir(dir_name)
 
-
 def copy_po_csvs(csv_filepaths: list[str]) -> list[str]:
     """
     This function copies csv files with
@@ -86,7 +84,8 @@ def copy_po_csvs(csv_filepaths: list[str]) -> list[str]:
 
     for path in filepaths:
         try:
-            df = pd.read_csv(path)
+            head_len = _header_length(path)
+            df = pd.read_csv(path, usecols=range(0, head_len - 1), header=None)
             new_filepaths.append(path)
         except pd.errors.EmptyDataError:
             print(f"Empty CSV file {os.path.basename(path)}")
@@ -586,6 +585,6 @@ def main(input_path: str, output_path: str):
 
 
 if __name__ == "__main__":
-    input_dir = r"../test/sample_data/"
-    output_dir = r"."
+    input_dir = r"C:\Users\Public\OneDrive - Turnbull Engineering\Documents\goldrush temp\gr_runs"
+    output_dir = r"C:\Users\Public\OneDrive - Turnbull Engineering\Documents\goldrush temp\script_out"
     main(input_dir, output_dir)
