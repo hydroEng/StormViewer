@@ -1,3 +1,4 @@
+import csv
 import os
 import shutil
 import pandas as pd
@@ -10,6 +11,24 @@ pd.set_option("display.max_rows", 500)
 pd.set_option("display.max_columns", 500)
 pd.set_option("display.width", 1000)
 
+def _header_length(input_csv: str):
+    """ Function to get header length """
+
+    with open(input_csv) as file:
+        reader = csv.reader(file)
+        head = next(reader)
+
+        return len(head)
+
+def _header_col(input_csv: str):
+    """ Function to grab the row number of the header columns in the csv file"""
+    with open(input_csv) as file:
+        reader = csv.reader(file)
+
+        rows = [row for row in reader]
+        header_row = [i for i, row in enumerate(rows) if 'Flow' in row]
+
+        return header_row[0]
 
 def get_po_csvs(input_dir: str) -> list:
     """
@@ -86,7 +105,14 @@ def parse_po_csv(input_file: str) -> pd.DataFrame or None:
         Pandas DataFrame with cleaned data from csv. The name of the DataFrame follows the name of the csv file.
     """
     try:
-        df = pd.read_csv(input_file)
+        # Get length of header to drop dummy columns
+        head_len = _header_length(input_file)
+        df = pd.read_csv(input_file, usecols=range(0, head_len-1), header=None)
+
+        # Set header - first col with "Flow" string
+        head_col = _header_col(input_file)
+        df.columns = df.iloc[head_col]
+        df = df.drop(index=head_col)
     except pd.errors.EmptyDataError:
         exit()
 
@@ -97,6 +123,8 @@ def parse_po_csv(input_file: str) -> pd.DataFrame or None:
     # Set index as time increment
     df.set_index(df.columns[0], inplace=True)
 
+    # Label columns with numbers to avoid duplicates
+    df.columns = [f"{column}.{i}" for i, column in enumerate(df.columns)]
     # Run ID read by input filename prepared by TUFLOW.
     df.name = os.path.basename(input_file)
     return df
@@ -139,8 +167,8 @@ def _get_po_lines(po_df: pd.DataFrame) -> list[str]:
 
     for column, values in po_df.items():
         if "Flow" in column:
-            po_lines.append(po_df[column][0])
-
+            location = po_df[column][0]
+            po_lines.append(location)
     return po_lines
 
 
