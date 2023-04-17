@@ -39,12 +39,7 @@ class Logger:
 
             for i in msg:
 
-                if isinstance(i, pandas.Series):
-                    _write_sr(i)
-                elif isinstance(i, pandas.DataFrame):
-                    _write_df(i)
-                else:
-                    _write_any(i)
+                self.log(i)
 
         if isinstance(msg, pandas.Series):
             _write_sr(msg)
