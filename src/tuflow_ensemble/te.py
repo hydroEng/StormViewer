@@ -106,7 +106,7 @@ def parse_po_csv(input_file: str) -> pd.DataFrame or None:
     try:
         # Get length of header to drop dummy columns
         head_len = _header_length(input_file)
-        df = pd.read_csv(input_file, usecols=range(0, head_len-1), header=None)
+        df = pd.read_csv(input_file, usecols=range(0, head_len), header=None)
 
         # Set header - first col with "Flow" string
         head_col = _header_col(input_file)
