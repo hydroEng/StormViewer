@@ -9,7 +9,7 @@ wd = pathlib.Path(__file__).parent.resolve()
 sample_data = os.path.join(wd, "sample_data")
 
 
-class testParsePoCSV(unittest.TestCase):
+class TestParsePoCSV(unittest.TestCase):
     # This test checks that result csv file is being parsed as a dataframe
     # correctly.
     def test_parse_po_csv(self):
@@ -19,7 +19,7 @@ class testParsePoCSV(unittest.TestCase):
         pd.testing.assert_frame_equal(expected_output, actual_output)
 
 
-class testParseStormName(unittest.TestCase):
+class TestParseStormName(unittest.TestCase):
     # This test checks that storm names are being parsed into storm
     # frequency, duration and temp pattern correctly.
     def test_parse_storm_name(self):
@@ -29,7 +29,7 @@ class testParseStormName(unittest.TestCase):
         self.assertEqual(expected_tuple, actual_tuple)
 
 
-class testCritStorm(unittest.TestCase):
+class TestCritStorm(unittest.TestCase):
     # This test checks whether critical storms are being calculated properly.
     def test_critical_storm_df(self):
         df = pd.read_pickle(os.path.join(wd, "100y_sample_maxflows.pickle"))
@@ -51,7 +51,7 @@ class testCritStorm(unittest.TestCase):
         self.assertEqual(expected, actual)
 
 
-class testLogging(unittest.TestCase):
+class TestLogging(unittest.TestCase):
     """This class tests logging functionality."""
 
     def test_list_log(self):
