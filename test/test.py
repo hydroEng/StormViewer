@@ -1,7 +1,7 @@
 import unittest
 import os
 import pandas as pd
-from tuflow_ensemble import te
+from tuflow_ensemble import te, logger
 import pathlib
 
 wd = pathlib.Path(__file__).parent.resolve()
@@ -49,6 +49,20 @@ class testCritStorm(unittest.TestCase):
         df["Critical Storm"] = df.apply(te._get_crit_tp, axis=1)
         actual = df["Critical Storm"].tolist()
         self.assertEqual(expected, actual)
+
+
+class testLogging(unittest.TestCase):
+    """This class tests logging functionality."""
+
+    def test_list_log(self):
+        df = pd.read_pickle(os.path.join(wd, "100y_sample_maxflows.pickle"))
+        st = "ABC 123"
+        lst = [df, st]
+        log_test = logger.Logger()
+        log_test.log(lst)
+
+        # Test that end of df, and all of st show up in log string.
+        assert "3.31845\n\nABC 123" in log_test.log_string
 
 
 if __name__ == "__main__":
