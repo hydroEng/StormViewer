@@ -11,23 +11,26 @@ pd.set_option("display.max_rows", 500)
 pd.set_option("display.max_columns", 500)
 pd.set_option("display.width", 1000)
 
-def _header_length(input_csv: str):
-    """ Function to get header length """
 
-    with open(input_csv, 'r') as file:
+def _header_length(input_csv: str):
+    """Function to get header length"""
+
+    with open(input_csv, "r") as file:
         reader = csv.reader(file)
         head = next(reader)
         return len(head)
 
+
 def _header_col(input_csv: str):
-    """ Function to grab the row number of the header columns in the csv file"""
-    with open(input_csv, 'r') as file:
+    """Function to grab the row number of the header columns in the csv file"""
+    with open(input_csv, "r") as file:
         reader = csv.reader(file)
 
         rows = [row for row in reader]
-        header_row = [i for i, row in enumerate(rows) if 'Flow' in row]
+        header_row = [i for i, row in enumerate(rows) if "Flow" in row]
 
         return header_row[0]
+
 
 def get_po_csvs(input_dir: str) -> list:
     """
@@ -57,6 +60,7 @@ def _create_local_folder(dir_name: str):
         shutil.rmtree(dir_name)
 
     os.mkdir(dir_name)
+
 
 def copy_po_csvs(csv_filepaths: list[str]) -> list[str]:
     """
