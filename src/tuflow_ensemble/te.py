@@ -60,7 +60,7 @@ def _create_local_folder(dir_name: str):
 
 def copy_po_csvs(csv_filepaths: list[str]) -> list[str]:
     """
-    This function copies csv files with
+    This function copies PO results files to local folder.
     Args:
         csv_filepaths: A list of CSV files to copy.
 
