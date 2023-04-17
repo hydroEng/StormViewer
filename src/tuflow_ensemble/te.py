@@ -1,3 +1,4 @@
+import csv
 import os
 import shutil
 import pandas as pd
@@ -10,6 +11,23 @@ pd.set_option("display.max_rows", 500)
 pd.set_option("display.max_columns", 500)
 pd.set_option("display.width", 1000)
 
+def _header_length(input_csv: str):
+    """ Function to get header length """
+
+    with open(input_csv, 'r') as file:
+        reader = csv.reader(file)
+        head = next(reader)
+        return len(head)
+
+def _header_col(input_csv: str):
+    """ Function to grab the row number of the header columns in the csv file"""
+    with open(input_csv, 'r') as file:
+        reader = csv.reader(file)
+
+        rows = [row for row in reader]
+        header_row = [i for i, row in enumerate(rows) if 'Flow' in row]
+
+        return header_row[0]
 
 def get_po_csvs(input_dir: str) -> list:
     """
@@ -40,10 +58,9 @@ def _create_local_folder(dir_name: str):
 
     os.mkdir(dir_name)
 
-
 def copy_po_csvs(csv_filepaths: list[str]) -> list[str]:
     """
-    This function copies csv files with
+    This function copies PO results files to local folder.
     Args:
         csv_filepaths: A list of CSV files to copy.
 
@@ -67,7 +84,8 @@ def copy_po_csvs(csv_filepaths: list[str]) -> list[str]:
 
     for path in filepaths:
         try:
-            df = pd.read_csv(path)
+            head_len = _header_length(path)
+            df = pd.read_csv(path, usecols=range(0, head_len - 1), header=None)
             new_filepaths.append(path)
         except pd.errors.EmptyDataError:
             print(f"Empty CSV file {os.path.basename(path)}")
@@ -86,7 +104,14 @@ def parse_po_csv(input_file: str) -> pd.DataFrame or None:
         Pandas DataFrame with cleaned data from csv. The name of the DataFrame follows the name of the csv file.
     """
     try:
-        df = pd.read_csv(input_file)
+        # Get length of header to drop dummy columns
+        head_len = _header_length(input_file)
+        df = pd.read_csv(input_file, usecols=range(0, head_len), header=None)
+
+        # Set header - first col with "Flow" string
+        head_col = _header_col(input_file)
+        df.columns = df.iloc[head_col]
+        df = df.drop(index=head_col)
     except pd.errors.EmptyDataError:
         exit()
 
@@ -97,6 +122,8 @@ def parse_po_csv(input_file: str) -> pd.DataFrame or None:
     # Set index as time increment
     df.set_index(df.columns[0], inplace=True)
 
+    # Label columns with numbers to avoid duplicates
+    df.columns = [f"{column}.{i}" for i, column in enumerate(df.columns)]
     # Run ID read by input filename prepared by TUFLOW.
     df.name = os.path.basename(input_file)
     return df
@@ -139,8 +166,8 @@ def _get_po_lines(po_df: pd.DataFrame) -> list[str]:
 
     for column, values in po_df.items():
         if "Flow" in column:
-            po_lines.append(po_df[column][0])
-
+            location = po_df[column][0]
+            po_lines.append(location)
     return po_lines
 
 
@@ -558,6 +585,6 @@ def main(input_path: str, output_path: str):
 
 
 if __name__ == "__main__":
-    input_dir = r"../test/sample_data/"
-    output_dir = r"."
+    input_dir = r""
+    output_dir = r""
     main(input_dir, output_dir)
