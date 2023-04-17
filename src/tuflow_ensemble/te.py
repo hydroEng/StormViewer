@@ -585,6 +585,6 @@ def main(input_path: str, output_path: str):
 
 
 if __name__ == "__main__":
-    input_dir = r"C:\Users\Public\OneDrive - Turnbull Engineering\Documents\goldrush temp\gr_runs"
-    output_dir = r"C:\Users\Public\OneDrive - Turnbull Engineering\Documents\goldrush temp\script_out"
+    input_dir = r""
+    output_dir = r""
     main(input_dir, output_dir)
