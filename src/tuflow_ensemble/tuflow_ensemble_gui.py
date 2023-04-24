@@ -9,7 +9,7 @@ from PyQt6.QtWidgets import (
     QPushButton,
     QLabel,
     QVBoxLayout,
-    QHBoxLayout,
+    QDialog,
 )
 from PyQt6.QtCore import QObject, QThreadPool, QRunnable, pyqtSignal, pyqtSlot
 import os
@@ -30,20 +30,21 @@ def resource_path(relative_path):
 
 
 class WorkerSignals(QObject):
-
     """
     This class holds signals for QRunnable Object. Supports:
 
     finished
         Send signal that QRunnable has finished execution.
+    error
+        Send error signal if QRunnable has encountered an error.
 
     """
 
     finished = QtCore.pyqtSignal()
+    error = QtCore.pyqtSignal()
 
 
 class TuflowEnsemble(QRunnable):
-
     """Worker Thread for main function"""
 
     def __init__(self, input_dir_path, output_dir_path):
@@ -56,10 +57,13 @@ class TuflowEnsemble(QRunnable):
     def run(self):
 
         print(self.input_dir_path)
-        te.main(self.input_dir_path, self.output_dir_path)
+        status = te.main(self.input_dir_path, self.output_dir_path)
 
-        # Sent finished signal to GUI App
-        self.signals.finished.emit()
+        # Send finished signal to GUI App
+        if status == "Success":
+            self.signals.finished.emit()
+        else:
+            self.signals.error.emit()
 
 
 class App(QWidget):
@@ -89,7 +93,7 @@ class App(QWidget):
         # Title of app in UI Window
 
         self.title_label = QLabel(self)
-        self.title_label.setText("TUFLOW Ensemble Tool v.1.1")
+        self.title_label.setText("TUFLOW Ensemble Tool v.1.2")
 
         # Set title label formatting
 
@@ -205,6 +209,9 @@ class App(QWidget):
             self.run_btn.setText("Run")
             self.run_btn.update()
 
+    def open_error_box(self):
+        ErrorBox()
+
     def run_main(self):
 
         input_dir_path = self.input_dir.text().split(": ")[1]
@@ -215,15 +222,70 @@ class App(QWidget):
         self.worker = TuflowEnsemble(input_dir_path, output_dir_path)
 
         self.threadpool.start(self.worker.run)
+
         self.worker.signals.finished.connect(self.update_button)
+        self.worker.signals.error.connect(self.open_error_box)
+        self.worker.signals.error.connect(self.update_button)
 
     def about(self):
         about_dialog = QMessageBox(self)
         about_dialog.setWindowTitle("About")
         about_dialog.setText(
-            "Version: 1.0\nReport Bugs: https://github.com/hydroEng/tuflow_ensemble"
+            "Version: 1.2\nReport Bugs: https://github.com/hydroEng/tuflow_ensemble"
         )
         about_dialog.exec()
+
+
+class ErrorBox(QDialog):
+    """Provides error message box."""
+
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Error")
+        self.init_error_ui()
+
+    def init_error_ui(self):
+
+        layout = QVBoxLayout(self)
+
+        err_icon_path = resource_path("assets/error-svgrepo-com.svg")
+
+        # Add header text
+        header_msg = "Oops! TUFLOW Ensemble Tool has encountered an error. \n"
+        header = QLabel()
+        header.setText(header_msg)
+
+        header_font = QFont()
+        header_font.setBold(True)
+        header_font.setPointSize(13)
+        header.setFont(header_font)
+
+        # Add error image
+        err_icon_label = QLabel()
+        err_icon = QPixmap(err_icon_path).scaledToWidth(48)
+        err_icon_label.setPixmap(err_icon)
+        err_icon_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+
+        # Add error message
+        err_msg = (
+            '\nThere might be a problem with your input data. Please view "log.txt" in the\n'
+            "output folder for info and report to github.com/hydroEng/tuflow_ensemble.\n"
+        )
+
+        label = QLabel()
+        label.setText(err_msg)
+
+        # Add close button
+        close_button = QPushButton("Close", self)
+        close_button.clicked.connect(self.close)
+
+        # Build layout
+        layout.addWidget(header)
+        layout.addWidget(err_icon_label)
+        layout.addWidget(label)
+        layout.addWidget(close_button)
+
+        self.exec()
 
 
 if __name__ == "__main__":
