@@ -6,6 +6,7 @@ import re
 from matplotlib import pyplot as plt
 import seaborn as sns
 from tuflow_ensemble import logger
+import traceback
 
 pd.set_option("display.max_rows", 500)
 pd.set_option("display.max_columns", 500)
@@ -534,58 +535,74 @@ def _skipped_inputs(raw_inputs: list, saved_inputs: list) -> list:
 
 def main(input_path: str, output_path: str):
     # Create Log Object
+
     log_file = logger.Logger()
     results_file = logger.Logger()
 
-    # Read input folder and download/copy files
-    raw_inputs = get_po_csvs(input_path)
-    saved_inputs = copy_po_csvs(raw_inputs)
+    try:
+        # Read input folder and download/copy files
+        raw_inputs = get_po_csvs(input_path)
+        saved_inputs = copy_po_csvs(raw_inputs)
 
-    # Log events
-    log_file.log(f"Inputs copied to local folder from source folder {input_path}:")
-    log_file.log([os.path.basename(saved_input) for saved_input in saved_inputs])
-    log_file.log("\nSkipped inputs:")
-    log_file.log(_skipped_inputs(raw_inputs, saved_inputs))
+        # Log events
+        log_file.log(f"Inputs copied to local folder from source folder {input_path}:")
+        log_file.log([os.path.basename(saved_input) for saved_input in saved_inputs])
+        log_file.log("\nSkipped inputs:")
+        log_file.log(_skipped_inputs(raw_inputs, saved_inputs))
 
-    # Get max flows
-    all_max_flows = []
+        # Get max flows
+        all_max_flows = []
 
-    for csv in saved_inputs:
-        df1 = parse_po_csv(csv)
-        all_max_flows.append(df1)
+        for csv in saved_inputs:
+            df1 = parse_po_csv(csv)
+            all_max_flows.append(df1)
 
-    df1 = concat_po_srs(all_max_flows)
+        df1 = concat_po_srs(all_max_flows)
 
-    # Log resulting maximum flows for all PO Lines
+        # Log resulting maximum flows for all PO Lines
 
-    log_file.log(df1)
+        log_file.log(df1)
 
-    # Generate Dataframe with max flows / critical storm per PO Line
-    all_crit = all_critical_storms(df1)
+        # Generate Dataframe with max flows / critical storm per PO Line
+        all_crit = all_critical_storms(df1)
 
-    # Log critical storms
-    log_file.log(all_crit)
+        # Log critical storms
+        log_file.log(all_crit)
 
-    # Plot
-    for df in all_crit:
-        plot_results(df, output_path)
+        # Plot
+        for df in all_crit:
+            plot_results(df, output_path)
 
-    # Generate Results
-    results_sr = []
+        # Generate Results
+        results_sr = []
 
-    for df in all_crit:
-        results_sr.append(summarize_results(df))
+        for df in all_crit:
+            results_sr.append(summarize_results(df))
 
-    # Log results
-    results_file.log(" \n\n\n###### RESULTS ###### \n\n\n")
+        # Log results
+        results_file.log(" \n\n\n###### RESULTS ###### \n\n\n")
 
-    results_df = pd.DataFrame(results_sr)
+        results_df = pd.DataFrame(results_sr)
 
-    results_file.log(results_sr)
+        results_file.log(results_sr)
+
+        # Results to file
+        results_file.write_to_txt(output_path, "results.txt")
+        status = "Success"
+
+    except Exception:
+        print("tuflow_ensemble has encountered an error! Please see log.txt.")
+        # Capture standard error to log.txt.
+        err = (
+            f"Error encountered! Please report this through the issues tab in https://github.com/hydroEng/tuflow_ensemble."
+            f"\n\nTraceback Message:\n\n{traceback.format_exc()}"
+        )
+        log_file.log(str(err))
+        status = "Error"
 
     # Export log to file
     log_file.write_to_txt(output_path, "log.txt")
-    results_file.write_to_txt(output_path, "results.txt")
+    return status
 
 
 if __name__ == "__main__":
