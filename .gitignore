@@ -2,3 +2,4 @@
 /_local/
 /__pycache__/
 ./*.png
+/src/tuflow_ensemble/tuflow_ensemble.egg-info/
