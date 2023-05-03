@@ -37,14 +37,14 @@ class Logger:
 
                 self.log(i)
 
-        if not msg:
-            _write_none()
-        elif isinstance(msg, pandas.Series):
+        if isinstance(msg, pandas.Series):
             _write_sr(msg)
         elif isinstance(msg, pandas.DataFrame):
             _write_df(msg)
         elif isinstance(msg, list):
             _write_list(msg)
+        elif not msg:
+            _write_none()
         else:
             _write_any(msg)
 
