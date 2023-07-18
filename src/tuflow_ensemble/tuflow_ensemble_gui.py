@@ -14,7 +14,7 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import QObject, QThreadPool, QRunnable, pyqtSignal, pyqtSlot
 import os
 import sys
-from tuflow_ensemble import te
+import te
 
 
 def resource_path(relative_path):

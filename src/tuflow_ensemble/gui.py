@@ -3,6 +3,7 @@ from PyQt6.QtGui import QPalette, QColor, QFont, QPixmap, QIcon, QFontMetrics
 from PyQt6.QtWidgets import (
     QFrame,
     QTableWidget,
+    QStyle,
     QMessageBox,
     QApplication,
     QWidget,
@@ -50,6 +51,8 @@ class App(QWidget):
         # self.height = 200
 
         self.threadpool = QThreadPool()
+        print(self.parent())
+
 
         self.initUI()
 
@@ -69,10 +72,11 @@ class App(QWidget):
 
         input_1 = self.input_controls()
         input_2 = self.input_view()
+        input_3 = self.graph_view()
 
         layout.addWidget(input_1, 0, 0)
         layout.addWidget(input_2, 0, 1)
-        layout.addWidget(QPushButton("Graph Area"), 1, 0, 1, 2)
+        layout.addWidget(input_3, 1, 0, 1, 2)
 
         self.setLayout(layout)
 
@@ -131,13 +135,13 @@ class App(QWidget):
 
         table = self.storm_table()
 
-        dir_str = "Directory: " + "C:/Users/Public/TUFLOW_Runs/Results/gis/Cootamundra_To_Parkes_Results/BoogaBoogaBoogaBoogaBoogaBoogaBoogaBoogaBoogaBooga"
-        directory = QLabel()
-        elided_str = self.elide_text(directory.font(), dir_str, table.width())
+        dir_str = "Directory: " + "C:/Users/Public/TUFLOW_Runs/Results/gis/Catchment_A_toCatchment_B/ThisIsAnExampleStringTocheckIfThisWorks"
+        dir_label = QLabel()
+        elided_str = self.elide_text(dir_label.font(), dir_str, table.width())
 
-        directory.setText(elided_str)
+        dir_label.setText(elided_str)
 
-        layout.addWidget(directory)
+        layout.addWidget(dir_label)
         layout.addWidget(table)
 
         widget.setLayout(layout)
@@ -147,13 +151,14 @@ class App(QWidget):
     def storm_table(self):
         """ Add table of detected storms"""
 
-        storms = [["Cootamundra to Parkes Catchment", "1AEP", "360m", "1, 2, 3, 4, 5, 6, 7, 8, 9, 10"]]
+        storms = [["This is an example Catchment", "1AEP", "360m", "1, 2, 3, 4, 5, 6, 7, 8, 9, 10"]]
 
         table = QTableWidget()
         table.setColumnCount(4)
         table.setRowCount(10)
 
         table.setHorizontalHeaderLabels(("ID", "Event", "Duration", "TPs"))
+        table.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
         column_widths = [220, 60, 60, 150]
         table.setFixedWidth(sum(column_widths) + 40)
@@ -168,7 +173,23 @@ class App(QWidget):
 
         return table
 
+    def graph_view(self):
+        widget = QWidget()
 
+        layout = QVBoxLayout()
+        separator = self.separator()
+        layout.addWidget(separator)
+        layout.addStretch()
+
+        widget.setLayout(layout)
+        return widget
+    def separator(self):
+
+        separator = QFrame()
+        separator.setFrameShape(QFrame.Shape.HLine)
+        separator.setFrameShadow(QFrame.Shadow.Sunken)
+
+        return separator
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     ex = App()

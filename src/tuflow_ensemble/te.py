@@ -5,7 +5,7 @@ import pandas as pd
 import re
 from matplotlib import pyplot as plt
 import seaborn as sns
-from tuflow_ensemble import logger
+import logger
 import traceback
 
 pd.set_option("display.max_rows", 500)
@@ -565,6 +565,8 @@ def main(input_path: str, output_path: str):
 
         # Generate Dataframe with max flows / critical storm per PO Line
         all_crit = all_critical_storms(df1)
+
+        # Hook into model here.
 
         # Log critical storms
         log_file.log(all_crit)
