@@ -1,11 +1,12 @@
+import pandas as pd
 class POLine:
 
-    def __init__(self, id: str, event: str, duration: str, tps: list[str], data):
+    def __init__(self, id: str, event: str, data):
         """
         Constructor.
 
         Args:
-            id: Storm name.
+            id: POLine name.
             event: Storm frequency (e.g. "1yr").
             duration: Storm duration.
             tps: List of temporal patterns modelled in storm package.
@@ -28,14 +29,14 @@ class POLine:
             A tuple of critical values:  Duration, TP and Max Flow.
         """
 
-        duration = data["Median"].idxmax()
-        tp = data.loc(duration, "Critical TP")
-        if tp == "NA":
-            flow = "NA"
+        crit_duration = pd.to_numeric(data["Median"]).idxmax()
+        crit_tp = data.loc[crit_duration, "Critical TP"]
+        if crit_tp == "NA":
+            crit_flow = "NA"
         else:
-            flow = data.loc(duration, tp)
+            crit_flow = data.loc[crit_duration, crit_tp]
 
-        return duration, tp, flow
+        return crit_duration, crit_tp, crit_flow
 
 
 

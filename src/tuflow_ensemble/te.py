@@ -7,10 +7,7 @@ from matplotlib import pyplot as plt
 import seaborn as sns
 import logger
 import traceback
-
-pd.set_option("display.max_rows", 500)
-pd.set_option("display.max_columns", 500)
-pd.set_option("display.width", 1000)
+from models import POLine
 
 
 def _header_length(input_csv: str):
@@ -475,7 +472,7 @@ def _str_to_valid_filename(name: str) -> str:
 
 
 def plot_results(
-    crit_storm_df: pd.DataFrame, output_path: str, strip_plot=True
+        crit_storm_df: pd.DataFrame, output_path: str, strip_plot=True
 ) -> None:
     """
     Plotting function for critical storms dataframe. Plots to PNG file with filename in format 'storm event- po_line'.
@@ -567,6 +564,17 @@ def main(input_path: str, output_path: str):
         all_crit = all_critical_storms(df1)
 
         # Hook into model here.
+        po_lines = []
+
+        for df in all_crit:
+
+            # Get PO Line location name
+            name_list = df.name.split(':')
+            name = name_list[1].replace('Max Flow', '').strip()
+            event = name_list[0]
+            po_line = POLine(name, event, data=df)
+            po_lines.append(po_line)
+
 
         # Log critical storms
         log_file.log(all_crit)
