@@ -22,7 +22,9 @@ from PyQt6.QtCore import QObject, QThreadPool, QRunnable, pyqtSignal, pyqtSlot
 import os
 import sys
 import te
-from src.tuflow_ensemble.models import POLine
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
+from matplotlib.figure import Figure
+from models import POLine
 
 
 # from tuflow_ensemble import te
@@ -185,6 +187,8 @@ class App(QWidget):
         layout = QVBoxLayout()
         separator = self.separator()
         layout.addWidget(separator)
+        canvas = self.canvas()
+        layout.addWidget(canvas)
         layout.addStretch()
 
         widget.setLayout(layout)
@@ -197,6 +201,11 @@ class App(QWidget):
         separator.setFrameShadow(QFrame.Shadow.Sunken)
 
         return separator
+
+    def canvas(self):
+        fig = MplCanvas()
+
+        return fig
 
     # CONTROLLER FUNCTIONS
 
@@ -223,6 +232,13 @@ class App(QWidget):
 
         self.main_layout.addWidget(input_view, 0, 1)
         self.setLayout(self.main_layout)
+
+### Canvas class ###
+class MplCanvas(FigureCanvasQTAgg):
+    def __init__(self, parent=None, width=5, height=4, dpi=200):
+        fig = Figure(figsize=(width, height), dpi=dpi)
+        self.axes = fig.add_subplot(111)
+        super(MplCanvas, self).__init__(fig)
 
 
 ### Backend Script Connections ###
