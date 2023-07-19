@@ -53,6 +53,7 @@ class App(QWidget):
 
         self.threadpool = QThreadPool()
         self.main_layout = QGridLayout()
+        self.processor = Processor()
 
         self.initUI()
 
@@ -69,13 +70,13 @@ class App(QWidget):
     def setUpMainWindow(self):
         """ Layouts for main window"""
 
-        input_1 = self.input_controls()
-        input_2 = self.input_view()
-        input_3 = self.graph_view()
+        self.input_1 = self.input_controls()
+        self.input_2 = self.input_view()
+        self.input_3 = self.graph_view()
 
-        self.main_layout.addWidget(input_1, 0, 0)
-        self.main_layout.addWidget(input_2, 0, 1)
-        self.main_layout.addWidget(input_3, 1, 0, 1, 2)
+        self.main_layout.addWidget(self.input_1, 0, 0)
+        self.main_layout.addWidget(self.input_2, 0, 1)
+        self.main_layout.addWidget(self.input_3, 1, 0, 1, 2)
 
         self.setLayout(self.main_layout)
 
@@ -92,12 +93,13 @@ class App(QWidget):
         browse_input = QPushButton("Select Results\n Folder")
         browse_input.clicked.connect(self.read_input_path)
 
-        read_storms = QPushButton("Analyse Storms")
-        read_storms.setFixedHeight(30)
+        create_plots = QPushButton("Create Plots")
+        create_plots.setFixedHeight(30)
+        create_plots.clicked.connect(self.create_plots)
 
         layout.addWidget(icon)
         layout.addWidget(browse_input)
-        layout.addWidget(read_storms)
+        layout.addWidget(create_plots)
 
         layout.addStretch()
         widget.setLayout(layout)
@@ -152,7 +154,6 @@ class App(QWidget):
         layout.addWidget(table)
 
         widget.setLayout(layout)
-
         return widget
 
     def storm_table(self, data):
@@ -187,7 +188,7 @@ class App(QWidget):
         layout = QVBoxLayout()
         separator = self.separator()
         layout.addWidget(separator)
-        canvas = self.canvas()
+        canvas = self.create_canvas()
         layout.addWidget(canvas)
         layout.addStretch()
 
@@ -202,24 +203,32 @@ class App(QWidget):
 
         return separator
 
-    def canvas(self):
-        fig = MplCanvas()
+    def create_canvas(self):
 
-        return fig
+        if not self.processor.figs:
+            canvas = MplCanvas()
+        else:
+            canvas = MplCanvas(fig=self.processor.figs[0])
+        return canvas
 
     # CONTROLLER FUNCTIONS
 
     def read_input_path(self):
 
         self.input_directory = str(QFileDialog.getExistingDirectory(self, "Select Input Folder"))
-        self.worker = ReadInputDirectory(self.input_directory)
-        self.threadpool.start(self.worker.run)
+        self.processor = Processor(self.input_directory)
+        self.threadpool.start(self.processor.run)
 
-        self.worker.signals.finished.connect(self.update_table)
+        self.processor.signals.finished.connect(self.update_table)
+
+    def create_plots(self):
+        self.threadpool.start(self.processor.plot)
+
+        self.processor.signals.finished.connect(self.update_canvas)
 
     def update_table(self):
         table_data = []
-        storms = self.worker.po_lines
+        storms = self.processor.po_lines
 
         for storm in storms:
             crit_storm = f"{storm.crit_duration}m, {storm.crit_tp}"
@@ -233,21 +242,29 @@ class App(QWidget):
         self.main_layout.addWidget(input_view, 0, 1)
         self.setLayout(self.main_layout)
 
+    def update_canvas(self):
+        graph_widget = self.graph_view()
+        self.main_layout.removeWidget(self.input_2)
+        self.main_layout.addWidget(graph_widget, 1, 0, 1, 2)
+        self.main_layout.update()
+
+
+
 ### Canvas class ###
 class MplCanvas(FigureCanvasQTAgg):
-    def __init__(self, parent=None, width=5, height=4, dpi=200):
-        fig = Figure(figsize=(width, height), dpi=dpi)
+    def __init__(self, fig=Figure(), width=5, height=4, dpi=200):
         self.axes = fig.add_subplot(111)
         super(MplCanvas, self).__init__(fig)
 
 
 ### Backend Script Connections ###
-class ReadInputDirectory(QRunnable):
-    def __init__(self, input_directory):
-        super(ReadInputDirectory).__init__()
+class Processor(QRunnable):
+    def __init__(self, input_directory=None):
+        super(Processor).__init__()
         self.input_directory = input_directory
         self.signals = WorkerSignals()
         self.po_lines = None
+        self.figs = None
 
     def run(self):
         self.po_lines = te.read_input_directory(self.input_directory)
@@ -256,6 +273,19 @@ class ReadInputDirectory(QRunnable):
             self.signals.finished.emit()
         else:
             self.signals.error.emit()
+
+    def plot(self):
+
+        if not self.po_lines:
+            raise ValueError("Cannot plot as no POLine objects have been generated yet.")
+
+        self.figs = []
+
+        for po_line in self.po_lines:
+            po_line.plot()
+            self.figs.append(po_line.fig)
+
+        self.signals.finished.emit()
 
 
 class WorkerSignals(QObject):

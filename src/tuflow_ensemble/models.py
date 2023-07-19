@@ -22,6 +22,8 @@ class POLine:
 
         self.crit_duration, self.crit_tp, self.crit_flow = self.results(data)
 
+        self.fig = None
+
     def plot(self):
 
         fig, ax = plt.subplots()
@@ -38,7 +40,7 @@ class POLine:
         ax.set_ylabel(r"Max Flow ($\mathregular{m^{3}}$/s)")
         ax.set_title(name)
 
-        return fig
+        self.fig = fig
 
     def results(self, data):
         """
