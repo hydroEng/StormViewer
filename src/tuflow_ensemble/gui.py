@@ -15,11 +15,14 @@ from PyQt6.QtWidgets import (
     QHBoxLayout,
     QDialog,
     QHeaderView,
+    QStyleFactory,
     QTableWidgetItem,
 )
 from PyQt6.QtCore import QObject, QThreadPool, QRunnable, pyqtSignal, pyqtSlot
 import os
 import sys
+import te
+from src.tuflow_ensemble.models import POLine
 
 
 # from tuflow_ensemble import te
@@ -40,19 +43,14 @@ class App(QWidget):
     def __init__(self):
         super().__init__()
 
+        self.input_directory = None
         self.title = "StormViewer"
         # self.iconPath = resource_path("assets/rain-svgrepo-com.svg")
 
         # self.setWindowIcon(QIcon(self.iconPath))
 
-        # self.left = 10
-        # self.top = 10
-        # self.width = 320
-        # self.height = 200
-
         self.threadpool = QThreadPool()
-        print(self.parent())
-
+        self.main_layout = QGridLayout()
 
         self.initUI()
 
@@ -68,17 +66,16 @@ class App(QWidget):
 
     def setUpMainWindow(self):
         """ Layouts for main window"""
-        layout = QGridLayout()
 
         input_1 = self.input_controls()
         input_2 = self.input_view()
         input_3 = self.graph_view()
 
-        layout.addWidget(input_1, 0, 0)
-        layout.addWidget(input_2, 0, 1)
-        layout.addWidget(input_3, 1, 0, 1, 2)
+        self.main_layout.addWidget(input_1, 0, 0)
+        self.main_layout.addWidget(input_2, 0, 1)
+        self.main_layout.addWidget(input_3, 1, 0, 1, 2)
 
-        self.setLayout(layout)
+        self.setLayout(self.main_layout)
 
     def input_controls(self):
 
@@ -91,6 +88,8 @@ class App(QWidget):
         icon = self.app_icon_label()
 
         browse_input = QPushButton("Select Results\n Folder")
+        browse_input.clicked.connect(self.read_input_path)
+
         read_storms = QPushButton("Analyse Storms")
         read_storms.setFixedHeight(30)
 
@@ -127,15 +126,21 @@ class App(QWidget):
         elided = metrics.elidedText(text, QtCore.Qt.TextElideMode.ElideMiddle, width)
         return elided
 
-    def input_view(self):
+    def input_view(self, data=None):
+
+        if data is None:
+            data = [[]]
+
         widget = QWidget()
         widget.setFixedHeight(180)
 
         layout = QVBoxLayout()
 
-        table = self.storm_table()
+        table = self.storm_table(data)
 
-        dir_str = "Directory: " + "C:/Users/Public/TUFLOW_Runs/Results/gis/Catchment_A_toCatchment_B/ThisIsAnExampleStringTocheckIfThisWorks"
+        filedir_str = self.input_directory if self.input_directory else ''
+        dir_str = "Directory: " + filedir_str
+
         dir_label = QLabel()
         elided_str = self.elide_text(dir_label.font(), dir_str, table.width())
 
@@ -148,28 +153,29 @@ class App(QWidget):
 
         return widget
 
-    def storm_table(self):
+    def storm_table(self, data):
         """ Add table of detected storms"""
-
-        storms = [["This is an example Catchment", "1AEP", "360m", "1, 2, 3, 4, 5, 6, 7, 8, 9, 10"]]
 
         table = QTableWidget()
         table.setColumnCount(4)
-        table.setRowCount(10)
 
-        table.setHorizontalHeaderLabels(("ID", "Event", "Duration", "TPs"))
+        if len(data[0]) != 0:
+            # Set num of rows if data is not empty.
+            table.setRowCount(len(data))
+
+        table.setHorizontalHeaderLabels(("Location", "Event", "Critical Storm", "Critical Max Flow"))
         table.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
-        column_widths = [220, 60, 60, 150]
+        column_widths = [120, 120, 120, 120]
         table.setFixedWidth(sum(column_widths) + 40)
         table.horizontalHeader().setStretchLastSection(True)
 
         for i, width in enumerate(column_widths):
             table.setColumnWidth(i, width)
 
-        for storm in storms:
-            for i, item in enumerate(storm):
-                table.setItem(0, i, QTableWidgetItem(item))
+        for row_num, row in enumerate(data):
+            for i, item in enumerate(row):
+                table.setItem(row_num, i, QTableWidgetItem(str(item)))
 
         return table
 
@@ -183,6 +189,7 @@ class App(QWidget):
 
         widget.setLayout(layout)
         return widget
+
     def separator(self):
 
         separator = QFrame()
@@ -190,8 +197,70 @@ class App(QWidget):
         separator.setFrameShadow(QFrame.Shadow.Sunken)
 
         return separator
+
+    # CONTROLLER FUNCTIONS
+
+    def read_input_path(self):
+
+        self.input_directory = str(QFileDialog.getExistingDirectory(self, "Select Input Folder"))
+        self.worker = ReadInputDirectory(self.input_directory)
+        self.threadpool.start(self.worker.run)
+
+        self.worker.signals.finished.connect(self.update_table)
+
+    def update_table(self):
+        table_data = []
+        storms = self.worker.po_lines
+
+        for storm in storms:
+            crit_storm = f"{storm.crit_duration}m, {storm.crit_tp}"
+            storm_data = [storm.id, storm.event, crit_storm, storm.crit_flow]
+            assert len(storm_data) == 4
+
+            table_data.append(storm_data)
+
+        input_view = self.input_view(table_data)
+
+        self.main_layout.addWidget(input_view, 0, 1)
+        self.setLayout(self.main_layout)
+
+
+### Backend Script Connections ###
+class ReadInputDirectory(QRunnable):
+    def __init__(self, input_directory):
+        super(ReadInputDirectory).__init__()
+        self.input_directory = input_directory
+        self.signals = WorkerSignals()
+        self.po_lines = None
+
+    def run(self):
+        self.po_lines = te.read_input_directory(self.input_directory)
+
+        if self.po_lines:
+            self.signals.finished.emit()
+        else:
+            self.signals.error.emit()
+
+
+class WorkerSignals(QObject):
+    """
+    This class holds signals for QRunnable Object. Supports:
+
+    finished
+        Send signal that QRunnable has finished execution.
+    error
+        Send error signal if QRunnable has encountered an error.
+
+    """
+
+    finished = QtCore.pyqtSignal()
+    error = QtCore.pyqtSignal()
+
+
 if __name__ == "__main__":
     app = QApplication(sys.argv)
+    app.setStyle(QStyleFactory.create("Fusion"))
+
     ex = App()
     ex.show()
     sys.exit(app.exec())

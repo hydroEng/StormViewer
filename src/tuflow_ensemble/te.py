@@ -530,6 +530,55 @@ def _skipped_inputs(raw_inputs: list, saved_inputs: list) -> list:
     return skipped
 
 
+def read_input_directory(input_path:str):
+
+    log_file = logger.Logger()
+    results_file = logger.Logger()
+
+    # Read input folder and download/copy files
+    raw_inputs = get_po_csvs(input_path)
+    saved_inputs = copy_po_csvs(raw_inputs)
+
+    # Log events
+
+    log_file.log(f"Inputs copied to local folder from source folder {input_path}:")
+    log_file.log([os.path.basename(saved_input) for saved_input in saved_inputs])
+    log_file.log("\nSkipped inputs:")
+    log_file.log(_skipped_inputs(raw_inputs, saved_inputs))
+
+    # Get max flows
+    all_max_flows = []
+
+    for csv in saved_inputs:
+        df1 = parse_po_csv(csv)
+        all_max_flows.append(df1)
+
+    df1 = concat_po_srs(all_max_flows)
+
+    # Log resulting maximum flows for all PO Lines
+
+    log_file.log(df1)
+
+    # Generate Dataframe with max flows / critical storm per PO Line
+    all_crit = all_critical_storms(df1)
+
+    # Hook into model here.
+    po_lines = []
+
+    for df in all_crit:
+        # Get PO Line location name
+        try:
+            name_list = df.name.split(':')
+            name = name_list[1].replace('Max Flow', '').strip()
+            event = name_list[0]
+            po_line = POLine(name, event, data=df)
+            po_lines.append(po_line)
+        except:
+            print(f"Failed to create POLine object for {df.name}")
+
+    return po_lines
+
+
 def main(input_path: str, output_path: str):
     # Create Log Object
 
@@ -575,7 +624,8 @@ def main(input_path: str, output_path: str):
             po_line = POLine(name, event, data=df)
             po_lines.append(po_line)
 
-
+        fig = po_lines[0].plot()
+        plt.show()
         # Log critical storms
         log_file.log(all_crit)
 

@@ -1,4 +1,7 @@
 import pandas as pd
+from matplotlib import pyplot as plt
+import seaborn as sns
+
 class POLine:
 
     def __init__(self, id: str, event: str, data):
@@ -20,7 +23,23 @@ class POLine:
         self.crit_duration, self.crit_tp, self.crit_flow = self.results(data)
 
     def plot(self):
-        "foo"
+
+        fig, ax = plt.subplots()
+
+        name = self.data.name
+
+        tp_cols = [col for col in self.data.columns if "tp" in col]
+        T_data = self.data[tp_cols].T
+
+        ax = sns.boxplot(T_data, color="lightyellow", saturation=1.0)
+        ax = sns.stripplot(T_data, palette="dark:black", jitter=0, size=3)
+
+        ax.set_xlabel('Duration (minutes)')
+        ax.set_ylabel(r"Max Flow ($\mathregular{m^{3}}$/s)")
+        ax.set_title(name)
+
+        return fig
+
     def results(self, data):
         """
         Process data to generate results.
@@ -37,6 +56,10 @@ class POLine:
             crit_flow = data.loc[crit_duration, crit_tp]
 
         return crit_duration, crit_tp, crit_flow
+
+
+    def save_results(self):
+        "foo"
 
 
 
