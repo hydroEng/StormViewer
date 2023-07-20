@@ -25,6 +25,7 @@ import te
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 from models import POLine
+from table import TableView
 
 
 # from tuflow_ensemble import te
@@ -55,6 +56,10 @@ class App(QWidget):
         self.main_layout = QGridLayout()
         self.processor = Processor()
 
+        self.input_1 = None
+        self.table_view = TableView()
+        self.input_3 = None
+
         self.initUI()
 
     def initUI(self):
@@ -64,19 +69,16 @@ class App(QWidget):
         self.setUpMainWindow()
         self.show()
 
-    def apply_debug_style(self, widget):
-        widget.setStyleSheet("border: 1px solid red;")
-
     def setUpMainWindow(self):
         """ Layouts for main window"""
+        self.main_layout.addWidget(self.table_view.widget, 0, 1)
+        if self.input_1 is None:
+            self.input_1 = self.input_controls()
+            self.main_layout.addWidget(self.input_1, 0, 0)
 
-        self.input_1 = self.input_controls()
-        self.input_2 = self.input_view()
-        self.input_3 = self.graph_view()
-
-        self.main_layout.addWidget(self.input_1, 0, 0)
-        self.main_layout.addWidget(self.input_2, 0, 1)
-        self.main_layout.addWidget(self.input_3, 1, 0, 1, 2)
+        if self.input_3 is None:
+            self.input_3 = self.graph_view()
+            self.main_layout.addWidget(self.input_3, 1, 0, 1, 2)
 
         self.setLayout(self.main_layout)
 
@@ -125,69 +127,14 @@ class App(QWidget):
 
         return app_icon_label
 
-    def elide_text(self, qfont, text: str, width: int):
-        metrics = QFontMetrics(qfont)
-        elided = metrics.elidedText(text, QtCore.Qt.TextElideMode.ElideMiddle, width)
-        return elided
-
-    def input_view(self, data=None):
-
-        if data is None:
-            data = [[]]
-
-        widget = QWidget()
-        widget.setFixedHeight(180)
-
-        layout = QVBoxLayout()
-
-        table = self.storm_table(data)
-
-        filedir_str = self.input_directory if self.input_directory else ''
-        dir_str = "Directory: " + filedir_str
-
-        dir_label = QLabel()
-        elided_str = self.elide_text(dir_label.font(), dir_str, table.width())
-
-        dir_label.setText(elided_str)
-
-        layout.addWidget(dir_label)
-        layout.addWidget(table)
-
-        widget.setLayout(layout)
-        return widget
-
-    def storm_table(self, data):
-        """ Add table of detected storms"""
-
-        table = QTableWidget()
-        table.setColumnCount(4)
-
-        if len(data[0]) != 0:
-            # Set num of rows if data is not empty.
-            table.setRowCount(len(data))
-
-        table.setHorizontalHeaderLabels(("Location", "Event", "Critical Storm", "Critical Max Flow"))
-        table.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-
-        column_widths = [120, 120, 120, 120]
-        table.setFixedWidth(sum(column_widths) + 40)
-        table.horizontalHeader().setStretchLastSection(True)
-
-        for i, width in enumerate(column_widths):
-            table.setColumnWidth(i, width)
-
-        for row_num, row in enumerate(data):
-            for i, item in enumerate(row):
-                table.setItem(row_num, i, QTableWidgetItem(str(item)))
-
-        return table
-
     def graph_view(self):
         widget = QWidget()
 
         layout = QVBoxLayout()
         separator = self.separator()
+
         layout.addWidget(separator)
+
         canvas = self.create_canvas()
         layout.addWidget(canvas)
         layout.addStretch()
@@ -219,35 +166,38 @@ class App(QWidget):
         self.processor = Processor(self.input_directory)
         self.threadpool.start(self.processor.run)
 
-        self.processor.signals.finished.connect(self.update_table)
+        self.processor.signals.finished.connect(self.update_table_view)
 
     def create_plots(self):
         self.threadpool.start(self.processor.plot)
 
         self.processor.signals.finished.connect(self.update_canvas)
 
-    def update_table(self):
+    def update_table_view(self):
         table_data = []
         storms = self.processor.po_lines
 
         for storm in storms:
+
             crit_storm = f"{storm.crit_duration}m, {storm.crit_tp}"
             storm_data = [storm.id, storm.event, crit_storm, storm.crit_flow]
             assert len(storm_data) == 4
 
             table_data.append(storm_data)
 
-        input_view = self.input_view(table_data)
+        self.table_view.data = table_data
+        self.table_view.update_table()
 
-        self.main_layout.addWidget(input_view, 0, 1)
-        self.setLayout(self.main_layout)
+        self.table_view.directory = self.input_directory
+        self.table_view.update_label()
+
+
 
     def update_canvas(self):
         graph_widget = self.graph_view()
         self.main_layout.removeWidget(self.input_2)
         self.main_layout.addWidget(graph_widget, 1, 0, 1, 2)
         self.main_layout.update()
-
 
 
 ### Canvas class ###
@@ -305,7 +255,6 @@ class WorkerSignals(QObject):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    app.setStyle(QStyleFactory.create("Fusion"))
 
     ex = App()
     ex.show()
