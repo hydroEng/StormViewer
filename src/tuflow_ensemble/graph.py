@@ -36,14 +36,14 @@ class GraphView(QWidget):
         self.separator.setFrameShadow(QFrame.Shadow.Sunken)
 
     def update_graph(self, figure):
-        if self.figures:
-            self.chart = MplCanvas(fig=figure)
-            self.canvas = QVBoxLayout()
-            self.canvas.addWidget(self.chart)
-            self.layout.update()
+
+        self.chart.deleteLater()
+        self.chart = MplCanvas(fig=figure)
+        self.canvas.addWidget(self.chart)
+        self.canvas.update()
 
 
 class MplCanvas(FigureCanvasQTAgg):
     def __init__(self, fig=Figure(), width=5, height=4, dpi=200):
-        self.axes = fig.add_subplot(111)
+        # self.axes = fig.add_subplot(111)
         super(MplCanvas, self).__init__(fig)

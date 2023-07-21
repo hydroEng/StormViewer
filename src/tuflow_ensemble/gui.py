@@ -185,7 +185,7 @@ class App(QWidget):
 
     def update_graph_view(self):
         print(self.processor.figs)
-        self.graph_view.update_graph(self.processor.figs[0])
+        self.graph_view.update_graph(figure=self.processor.figs[0])
 
 ### Canvas class ###
 class MplCanvas(FigureCanvasQTAgg):
