@@ -26,6 +26,7 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 from models import POLine
 from table import TableView
+from graph import GraphView
 
 
 # from tuflow_ensemble import te
@@ -58,7 +59,7 @@ class App(QWidget):
 
         self.input_1 = None
         self.table_view = TableView()
-        self.input_3 = None
+        self.graph_view = GraphView()
 
         self.initUI()
 
@@ -76,9 +77,7 @@ class App(QWidget):
             self.input_1 = self.input_controls()
             self.main_layout.addWidget(self.input_1, 0, 0)
 
-        if self.input_3 is None:
-            self.input_3 = self.graph_view()
-            self.main_layout.addWidget(self.input_3, 1, 0, 1, 2)
+        self.main_layout.addWidget(self.graph_view, 1, 0, 1, 2)
 
         self.setLayout(self.main_layout)
 
@@ -150,14 +149,6 @@ class App(QWidget):
 
         return separator
 
-    def create_canvas(self):
-
-        if not self.processor.figs:
-            canvas = MplCanvas()
-        else:
-            canvas = MplCanvas(fig=self.processor.figs[0])
-        return canvas
-
     # CONTROLLER FUNCTIONS
 
     def read_input_path(self):
@@ -171,7 +162,8 @@ class App(QWidget):
     def create_plots(self):
         self.threadpool.start(self.processor.plot)
 
-        self.processor.signals.finished.connect(self.update_canvas)
+        self.processor.signals.finished.connect(self.update_graph_view)
+
 
     def update_table_view(self):
         table_data = []
@@ -191,14 +183,9 @@ class App(QWidget):
         self.table_view.directory = self.input_directory
         self.table_view.update_label()
 
-
-
-    def update_canvas(self):
-        graph_widget = self.graph_view()
-        self.main_layout.removeWidget(self.input_2)
-        self.main_layout.addWidget(graph_widget, 1, 0, 1, 2)
-        self.main_layout.update()
-
+    def update_graph_view(self):
+        print(self.processor.figs)
+        self.graph_view.update_graph(self.processor.figs[0])
 
 ### Canvas class ###
 class MplCanvas(FigureCanvasQTAgg):
