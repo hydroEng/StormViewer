@@ -16,6 +16,7 @@ class TableView(QWidget):
         self.dir_str = "Directory: " + self.directory
         self.dir_label = QLabel(self.dir_str)
         self.table = None
+        self.selected_row = 0
 
         self.init_widget()
 
@@ -48,7 +49,11 @@ class TableView(QWidget):
         for i, width in enumerate(column_widths):
             table.setColumnWidth(i, width)
 
+        table.cellClicked.connect(self.update_selected_row)
         self.table = table
+
+    def update_selected_row(self, row, col):
+        self.selected_row = row
 
     def update_label(self):
         """Update directory label with middle elision. Call after setting self.directory."""
