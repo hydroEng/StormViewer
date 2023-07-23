@@ -5,6 +5,7 @@ from PyQt6.QtWidgets import (
     QTableWidget,
     QStyle,
     QMessageBox,
+
     QApplication,
     QWidget,
     QGridLayout,
@@ -188,8 +189,8 @@ class App(QWidget):
         self.table_view.update_label()
 
     def update_graph_view(self):
-
-        self.graph_view.update_graph(self.processor.figs[self.table_view.selected_row])
+        if self.processor.figs is not None:
+            self.graph_view.update_graph(self.processor.figs[self.table_view.selected_row])
 
 ### Canvas class ###
 class MplCanvas(FigureCanvasQTAgg):

@@ -9,7 +9,6 @@ from PyQt6.QtWidgets import (
     QVBoxLayout, QFrame
 )
 
-
 class GraphView(QWidget):
     def __init__(self):
         super().__init__()

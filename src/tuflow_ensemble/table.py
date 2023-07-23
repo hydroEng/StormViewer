@@ -2,7 +2,7 @@ from PyQt6 import QtCore
 from PyQt6.QtGui import QFontMetrics
 from PyQt6.QtWidgets import (
     QWidget,
-    QVBoxLayout, QLabel, QTableWidget, QTableWidgetItem,
+    QVBoxLayout, QLabel, QTableWidget, QTableWidgetItem, QTableView,
 )
 
 
@@ -49,6 +49,7 @@ class TableView(QWidget):
         for i, width in enumerate(column_widths):
             table.setColumnWidth(i, width)
 
+        table.setSelectionBehavior(QTableView.SelectionBehavior.SelectRows)
         table.cellClicked.connect(self.update_selected_row)
         self.table = table
 
