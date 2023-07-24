@@ -15,8 +15,6 @@ class GraphView(QWidget):
         self.layout = QVBoxLayout()
         self.separator = None
         self.chart = MplCanvas()
-        self.canvas = QVBoxLayout()
-        self.canvas.addWidget(self.chart)
 
         self.figures = None
 
@@ -25,7 +23,7 @@ class GraphView(QWidget):
     def init_widget(self):
         self.init_separator()
         self.layout.addWidget(self.separator)
-        self.layout.addLayout(self.canvas)
+        self.layout.addWidget(self.chart)
         self.setLayout(self.layout)
 
     def init_separator(self):
@@ -37,12 +35,13 @@ class GraphView(QWidget):
     def update_graph(self, figure):
 
         self.chart.deleteLater()
+        figure.dpi = 100
         self.chart = MplCanvas(fig=figure)
-        self.canvas.addWidget(self.chart)
-        self.canvas.update()
+
+        self.layout.addWidget(self.chart)
+        self.layout.update()
 
 
 class MplCanvas(FigureCanvasQTAgg):
-    def __init__(self, fig=Figure(), width=5, height=4, dpi=200):
-        # self.axes = fig.add_subplot(111)
+    def __init__(self, fig=Figure()):
         super(MplCanvas, self).__init__(fig)

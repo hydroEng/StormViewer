@@ -40,6 +40,8 @@ class POLine:
         ax.set_ylabel(r"Max Flow ($\mathregular{m^{3}}$/s)")
         ax.set_title(name)
 
+        fig.set_size_inches(3, 3)
+
         self.fig = fig
 
     def results(self, data):

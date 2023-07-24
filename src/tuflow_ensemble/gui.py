@@ -5,7 +5,6 @@ from PyQt6.QtWidgets import (
     QTableWidget,
     QStyle,
     QMessageBox,
-
     QApplication,
     QWidget,
     QGridLayout,
@@ -69,7 +68,7 @@ class App(QWidget):
         self.initUI()
 
     def initUI(self):
-        # self.setGeometry(self.left, self.top, self.width, self.height)
+        
         self.setWindowTitle("StormViewer")
 
         self.setUpMainWindow()
@@ -131,29 +130,6 @@ class App(QWidget):
 
         return app_icon_label
 
-    def graph_view(self):
-        widget = QWidget()
-
-        layout = QVBoxLayout()
-        separator = self.separator()
-
-        layout.addWidget(separator)
-
-        canvas = self.create_canvas()
-        layout.addWidget(canvas)
-        layout.addStretch()
-
-        widget.setLayout(layout)
-        return widget
-
-    def separator(self):
-
-        separator = QFrame()
-        separator.setFrameShape(QFrame.Shape.HLine)
-        separator.setFrameShadow(QFrame.Shadow.Sunken)
-
-        return separator
-
     # CONTROLLER FUNCTIONS
 
     def read_input_path(self):
@@ -191,12 +167,6 @@ class App(QWidget):
     def update_graph_view(self):
         if self.processor.figs is not None:
             self.graph_view.update_graph(self.processor.figs[self.table_view.selected_row])
-
-### Canvas class ###
-class MplCanvas(FigureCanvasQTAgg):
-    def __init__(self, fig=Figure(), width=5, height=4, dpi=200):
-        self.axes = fig.add_subplot(111)
-        super(MplCanvas, self).__init__(fig)
 
 
 ### Backend Script Connections ###
