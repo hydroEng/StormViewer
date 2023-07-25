@@ -2,7 +2,11 @@ from PyQt6 import QtCore
 from PyQt6.QtGui import QFontMetrics
 from PyQt6.QtWidgets import (
     QWidget,
-    QVBoxLayout, QLabel, QTableWidget, QTableWidgetItem, QTableView,
+    QVBoxLayout,
+    QLabel,
+    QTableWidget,
+    QTableWidgetItem,
+    QTableView,
 )
 
 
@@ -39,7 +43,9 @@ class TableView(QWidget):
         table = QTableWidget()
         table.setColumnCount(4)
 
-        table.setHorizontalHeaderLabels(("Location", "Event", "Critical Storm", "Critical Max Flow"))
+        table.setHorizontalHeaderLabels(
+            ("Location", "Event", "Critical Storm", "Critical Max Flow")
+        )
         table.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
         column_widths = [120, 120, 120, 120]
@@ -59,7 +65,9 @@ class TableView(QWidget):
     def update_label(self):
         """Update directory label with middle elision. Call after setting self.directory."""
         self.dir_str = "Directory: " + self.directory
-        elided = self.elide_text(self.dir_label.font(), self.dir_str, self.table.width())
+        elided = self.elide_text(
+            self.dir_label.font(), self.dir_str, self.table.width()
+        )
         self.dir_label.setText(elided)
 
         self.update()

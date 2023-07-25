@@ -4,10 +4,8 @@ import matplotlib
 matplotlib.use("Qt5Agg")
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
-from PyQt6.QtWidgets import (
-    QWidget,
-    QVBoxLayout, QFrame
-)
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QFrame
+
 
 class GraphView(QWidget):
     def __init__(self):
@@ -27,7 +25,7 @@ class GraphView(QWidget):
         self.setLayout(self.layout)
 
     def init_separator(self):
-        """ Initialize separator above graph area """
+        """Initialize separator above graph area"""
         self.separator = QFrame()
         self.separator.setFrameShape(QFrame.Shape.HLine)
         self.separator.setFrameShadow(QFrame.Shadow.Sunken)

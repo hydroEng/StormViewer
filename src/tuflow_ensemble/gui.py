@@ -27,9 +27,11 @@ from matplotlib.figure import Figure
 from models import POLine
 from table import TableView
 from graph import GraphView
+from controls import BottomControls
 
 
 # from tuflow_ensemble import te
+
 
 def resource_path(relative_path):
     """Get absolute path to resource, works for dev and for PyInstaller.
@@ -56,8 +58,9 @@ class App(QWidget):
         self.threadpool = QThreadPool()
         self.main_layout = QGridLayout()
         self.processor = Processor()
-
         self.input_1 = None
+
+        self.control_view = BottomControls()
         self.table_view = TableView()
         self.graph_view = GraphView()
 
@@ -68,15 +71,16 @@ class App(QWidget):
         self.initUI()
 
     def initUI(self):
-        
+
         self.setWindowTitle("StormViewer")
 
         self.setUpMainWindow()
         self.show()
 
     def setUpMainWindow(self):
-        """ Layouts for main window"""
+        """Layouts for main window"""
         self.main_layout.addWidget(self.table_view, 0, 1)
+        self.main_layout.addWidget(self.control_view, 2, 0, 1, 2)
         if self.input_1 is None:
             self.input_1 = self.input_controls()
             self.main_layout.addWidget(self.input_1, 0, 0)
@@ -113,7 +117,7 @@ class App(QWidget):
 
     def app_icon_label(self):
 
-        """ Rain Cloud Icon"""
+        """Rain Cloud Icon"""
         # Icon and file inputs cell
 
         iconPath = resource_path("assets/rain-svgrepo-com.svg")
@@ -134,7 +138,9 @@ class App(QWidget):
 
     def read_input_path(self):
 
-        self.input_directory = str(QFileDialog.getExistingDirectory(self, "Select Input Folder"))
+        self.input_directory = str(
+            QFileDialog.getExistingDirectory(self, "Select Input Folder")
+        )
         self.processor = Processor(self.input_directory)
         self.threadpool.start(self.processor.run)
 
@@ -144,7 +150,6 @@ class App(QWidget):
 
         self.threadpool.start(self.processor.plot)
         self.processor.signals.finished.connect(self.update_graph_view)
-
 
     def update_table_view(self):
         table_data = []
@@ -166,7 +171,9 @@ class App(QWidget):
 
     def update_graph_view(self):
         if self.processor.figs is not None:
-            self.graph_view.update_graph(self.processor.figs[self.table_view.selected_row])
+            self.graph_view.update_graph(
+                self.processor.figs[self.table_view.selected_row]
+            )
 
 
 ### Backend Script Connections ###
@@ -189,7 +196,9 @@ class Processor(QRunnable):
     def plot(self):
 
         if not self.po_lines:
-            raise ValueError("Cannot plot as no POLine objects have been generated yet.")
+            raise ValueError(
+                "Cannot plot as no POLine objects have been generated yet."
+            )
 
         self.figs = []
 

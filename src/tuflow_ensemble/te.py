@@ -472,7 +472,7 @@ def _str_to_valid_filename(name: str) -> str:
 
 
 def plot_results(
-        crit_storm_df: pd.DataFrame, output_path: str, strip_plot=True
+    crit_storm_df: pd.DataFrame, output_path: str, strip_plot=True
 ) -> None:
     """
     Plotting function for critical storms dataframe. Plots to PNG file with filename in format 'storm event- po_line'.
@@ -530,7 +530,7 @@ def _skipped_inputs(raw_inputs: list, saved_inputs: list) -> list:
     return skipped
 
 
-def read_input_directory(input_path:str):
+def read_input_directory(input_path: str):
 
     log_file = logger.Logger()
     results_file = logger.Logger()
@@ -568,8 +568,8 @@ def read_input_directory(input_path:str):
     for df in all_crit:
         # Get PO Line location name
         try:
-            name_list = df.name.split(':')
-            name = name_list[1].replace('Max Flow', '').strip()
+            name_list = df.name.split(":")
+            name = name_list[1].replace("Max Flow", "").strip()
             event = name_list[0]
             po_line = POLine(name, event, data=df)
             po_lines.append(po_line)
@@ -618,8 +618,8 @@ def main(input_path: str, output_path: str):
         for df in all_crit:
 
             # Get PO Line location name
-            name_list = df.name.split(':')
-            name = name_list[1].replace('Max Flow', '').strip()
+            name_list = df.name.split(":")
+            name = name_list[1].replace("Max Flow", "").strip()
             event = name_list[0]
             po_line = POLine(name, event, data=df)
             po_lines.append(po_line)

@@ -1,9 +1,9 @@
 import pandas as pd
 from matplotlib import pyplot as plt
 import seaborn as sns
-
+import os
+from typing import Union
 class POLine:
-
     def __init__(self, id: str, event: str, data):
         """
         Constructor.
@@ -36,11 +36,12 @@ class POLine:
         ax = sns.boxplot(T_data, color="lightyellow", saturation=1.0)
         ax = sns.stripplot(T_data, palette="dark:black", jitter=0, size=3)
 
-        ax.set_xlabel('Duration (minutes)')
+        ax.set_xlabel("Duration (minutes)")
         ax.set_ylabel(r"Max Flow ($\mathregular{m^{3}}$/s)")
         ax.set_title(name)
 
         fig.set_size_inches(3, 3)
+        print(type(fig))
 
         self.fig = fig
 
@@ -61,10 +62,7 @@ class POLine:
 
         return crit_duration, crit_tp, crit_flow
 
-
-    def save_results(self):
-        "foo"
-
-
-
-
+    def save_results(self, output_directory: str):
+        if os.path.exists(output_directory):
+            if self.fig:
+                self.fig.sa
