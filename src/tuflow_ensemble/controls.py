@@ -24,6 +24,9 @@ class BottomControls(QWidget):
         return button
 
     def help_button(self):
+        """
+        Help button: Connects to help dialog
+        """
         button = QPushButton("Help")
         button.setFixedHeight(30)
         btn_pixmap = QStyle.StandardPixmap.SP_MessageBoxQuestion
