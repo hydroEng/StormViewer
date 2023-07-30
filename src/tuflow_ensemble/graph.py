@@ -31,13 +31,14 @@ class GraphView(QWidget):
         frame.setFrameShadow(QFrame.Shadow.Sunken)
         frame.setFixedHeight(480)
 
-        msg = QLabel("No graphs to display. Select results directory and create plots above.")
+        msg = QLabel("No chart loaded. Create charts by loading results and using the \"Create Plots\" button above.")
 
         frame_layout = QVBoxLayout()
         frame_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
         frame_layout.addWidget(msg)
         frame.setLayout(frame_layout)
         return frame
+
 
     def init_separator(self):
         """Initialize separator above canvas area """

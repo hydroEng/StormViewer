@@ -27,22 +27,6 @@ from table import TableView
 from graph import GraphView
 from controls import BottomControls
 
-
-# from tuflow_ensemble import te
-
-
-def resource_path(relative_path):
-    """Get absolute path to resource, works for dev and for PyInstaller.
-    From https://stackoverflow.com/questions/31836104/pyinstaller-and-onefile-how-to-include-an-image-in-the-exe-file"""
-    try:
-        # PyInstaller creates a temp folder and stores path in _MEIPASS
-        base_path = sys._MEIPASS
-    except Exception:
-        base_path = os.path.abspath(".")
-
-    return os.path.join(base_path, relative_path)
-
-
 class App(QWidget):
     def __init__(self):
         super().__init__()
@@ -54,7 +38,7 @@ class App(QWidget):
         self.threadpool = QThreadPool()
         self.main_layout = QGridLayout()
         self.processor = Processor()
-        self.input_1 = None
+        self.top_controls = self.input_controls()
 
         self.control_view = BottomControls()
         self.table_view = TableView()
@@ -78,9 +62,7 @@ class App(QWidget):
         """Layouts for main window"""
         self.main_layout.addWidget(self.table_view, 0, 1)
         self.main_layout.addWidget(self.control_view, 2, 0, 1, 2)
-        if self.input_1 is None:
-            self.input_1 = self.input_controls()
-            self.main_layout.addWidget(self.input_1, 0, 0)
+        self.main_layout.addWidget(self.top_controls, 0, 0)
 
         self.main_layout.addWidget(self.graph_view, 1, 0, 1, 2)
 
@@ -100,6 +82,7 @@ class App(QWidget):
         browse_input.clicked.connect(self.read_input_path)
 
         create_plots = QPushButton("Create Plots")
+        create_plots.setEnabled(False)
         create_plots.setFixedHeight(30)
         create_plots.clicked.connect(self.create_plots)
 
@@ -135,16 +118,23 @@ class App(QWidget):
 
     def read_input_path(self):
 
-        self.input_directory = str(
-            QFileDialog.getExistingDirectory(self, "Select Input Folder")
-        )
+        try:
+            self.input_directory = str(
+                QFileDialog.getExistingDirectory(self, "Select Input Folder")
+            )
 
-        if self.input_directory:
+            if self.input_directory:
 
-            self.processor = Processor(self.input_directory)
-            self.threadpool.start(self.processor.run)
+                self.processor = Processor(self.input_directory)
+                self.threadpool.start(self.processor.run)
 
-            self.processor.signals.finished.connect(self.update_table_view)
+                self.processor.signals.finished.connect(self.update_table_view)
+
+                print(dir(self.top_controls))
+
+        except:
+            # Update canvas text to reflect failure.
+            pass
 
     def create_plots(self):
 
@@ -167,6 +157,8 @@ class App(QWidget):
 
         self.table_view.directory = self.input_directory
         self.table_view.update_label()
+
+
 
     def update_graph_view(self):
         if self.processor.figs is not None:
