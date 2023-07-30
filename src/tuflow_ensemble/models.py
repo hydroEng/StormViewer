@@ -46,7 +46,7 @@ class POLine:
         ax.set_ylabel(r"Max Flow ($\mathregular{m^{3}}$/s)")
         ax.set_title(name)
 
-        # Save figure as object to show in gui, as well as file if user wants to save later.
+        # Save figure as object to show in gui, as~ well as file if user wants to save later.
 
         self.fig = fig
         self.temp_file = NamedTemporaryFile(suffix='.png', delete=False)

@@ -141,10 +141,13 @@ class App(QWidget):
         self.input_directory = str(
             QFileDialog.getExistingDirectory(self, "Select Input Folder")
         )
-        self.processor = Processor(self.input_directory)
-        self.threadpool.start(self.processor.run)
 
-        self.processor.signals.finished.connect(self.update_table_view)
+        if self.input_directory:
+
+            self.processor = Processor(self.input_directory)
+            self.threadpool.start(self.processor.run)
+
+            self.processor.signals.finished.connect(self.update_table_view)
 
     def create_plots(self):
 
@@ -217,7 +220,6 @@ class Processor(QRunnable):
             for po_line in self.po_lines:
                 try:
                     file_name = _str_to_valid_filename(po_line.name) + ".png"
-                    # Replace this with temporary img file...
                     copyfile(po_line.temp_file.name, os.path.join(output_dir, file_name))
                 except:
                     print(f"Could not plot {po_line.name}")
