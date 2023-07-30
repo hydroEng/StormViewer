@@ -7,7 +7,7 @@ from typing import Union
 
 
 class POLine:
-    def __init__(self, name: str,  loc: str, event: str, data):
+    def __init__(self, name: str, loc: str, event: str, data):
         """
         Constructor.
 
@@ -49,7 +49,7 @@ class POLine:
         # Save figure as object to show in gui, as~ well as file if user wants to save later.
 
         self.fig = fig
-        self.temp_file = NamedTemporaryFile(suffix='.png', delete=False)
+        self.temp_file = NamedTemporaryFile(suffix=".png", delete=False)
 
         plt.savefig(self.temp_file.name, dpi=200)
 
@@ -71,4 +71,3 @@ class POLine:
             crit_flow = data.loc[crit_duration, crit_tp]
 
         return crit_duration, crit_tp, crit_flow
-

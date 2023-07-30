@@ -472,7 +472,7 @@ def _str_to_valid_filename(name: str) -> str:
 
 
 def plot_results(
-        crit_storm_df: pd.DataFrame, output_path: str, strip_plot=True
+    crit_storm_df: pd.DataFrame, output_path: str, strip_plot=True
 ) -> None:
     """
     Plotting function for critical storms dataframe. Plots to PNG file with filename in format 'storm event- po_line'.

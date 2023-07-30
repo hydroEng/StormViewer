@@ -50,9 +50,6 @@ class App(QWidget):
         self.input_directory = None
         self.output_directory = None
         self.title = "StormViewer"
-        # self.iconPath = resource_path("assets/rain-svgrepo-com.svg")
-
-        # self.setWindowIcon(QIcon(self.iconPath))
 
         self.threadpool = QThreadPool()
         self.main_layout = QGridLayout()
@@ -179,7 +176,9 @@ class App(QWidget):
 
     def save_plots(self):
         if self.processor.figs is not None:
-            self.output_directory = QFileDialog.getExistingDirectory(caption="Select Output Directory")
+            self.output_directory = QFileDialog.getExistingDirectory(
+                caption="Select Output Directory"
+            )
             self.processor.save_plots(self.output_directory)
 
 
@@ -220,7 +219,9 @@ class Processor(QRunnable):
             for po_line in self.po_lines:
                 try:
                     file_name = _str_to_valid_filename(po_line.name) + ".png"
-                    copyfile(po_line.temp_file.name, os.path.join(output_dir, file_name))
+                    copyfile(
+                        po_line.temp_file.name, os.path.join(output_dir, file_name)
+                    )
                 except:
                     print(f"Could not plot {po_line.name}")
 
@@ -241,6 +242,7 @@ class WorkerSignals(QObject):
 
 
 # Utils
+
 
 def _str_to_valid_filename(name: str) -> str:
     """
