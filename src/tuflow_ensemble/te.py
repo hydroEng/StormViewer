@@ -472,7 +472,7 @@ def _str_to_valid_filename(name: str) -> str:
 
 
 def plot_results(
-    crit_storm_df: pd.DataFrame, output_path: str, strip_plot=True
+        crit_storm_df: pd.DataFrame, output_path: str, strip_plot=True
 ) -> None:
     """
     Plotting function for critical storms dataframe. Plots to PNG file with filename in format 'storm event- po_line'.
@@ -531,7 +531,6 @@ def _skipped_inputs(raw_inputs: list, saved_inputs: list) -> list:
 
 
 def read_input_directory(input_path: str):
-
     log_file = logger.Logger()
     results_file = logger.Logger()
 
@@ -568,10 +567,12 @@ def read_input_directory(input_path: str):
     for df in all_crit:
         # Get PO Line location name
         try:
-            name_list = df.name.split(":")
-            name = name_list[1].replace("Max Flow", "").strip()
-            event = name_list[0]
-            po_line = POLine(name, event, data=df)
+            name = df.name
+            valid_name = _str_to_valid_filename(name)
+            name_split = name.split(":")
+            loc = name_split[1].replace("Max Flow", "").strip()
+            event = name_split[0]
+            po_line = POLine(name=valid_name, loc=loc, event=event, data=df)
             po_lines.append(po_line)
         except:
             print(f"Failed to create POLine object for {df.name}")
@@ -614,14 +615,16 @@ def main(input_path: str, output_path: str):
 
         # Hook into model here.
         po_lines = []
+        print("Why")
 
         for df in all_crit:
-
             # Get PO Line location name
+            name = _str_to_valid_filename(df.name)
+            print(name)
             name_list = df.name.split(":")
-            name = name_list[1].replace("Max Flow", "").strip()
+            loc = name_list[1].replace("Max Flow", "").strip()
             event = name_list[0]
-            po_line = POLine(name, event, data=df)
+            po_line = POLine(name=name, loc=loc, event=event, data=df)
             po_lines.append(po_line)
 
         fig = po_lines[0].plot()

@@ -22,9 +22,7 @@ from PyQt6.QtCore import QObject, QThreadPool, QRunnable, pyqtSignal, pyqtSlot
 import os
 import sys
 import te
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
-from matplotlib.figure import Figure
-from models import POLine
+from shutil import copyfile
 from table import TableView
 from graph import GraphView
 from controls import BottomControls
@@ -50,6 +48,7 @@ class App(QWidget):
         super().__init__()
 
         self.input_directory = None
+        self.output_directory = None
         self.title = "StormViewer"
         # self.iconPath = resource_path("assets/rain-svgrepo-com.svg")
 
@@ -64,9 +63,10 @@ class App(QWidget):
         self.table_view = TableView()
         self.graph_view = GraphView()
 
-        # Connect table row click with graph update func
+        # Button / row connections
 
         self.table_view.table.cellClicked.connect(self.update_graph_view)
+        self.control_view.save_btn.clicked.connect(self.save_plots)
 
         self.initUI()
 
@@ -156,9 +156,8 @@ class App(QWidget):
         storms = self.processor.po_lines
 
         for storm in storms:
-
             crit_storm = f"{storm.crit_duration}m, {storm.crit_tp}"
-            storm_data = [storm.id, storm.event, crit_storm, storm.crit_flow]
+            storm_data = [storm.loc, storm.event, crit_storm, storm.crit_flow]
             assert len(storm_data) == 4
 
             table_data.append(storm_data)
@@ -174,6 +173,11 @@ class App(QWidget):
             self.graph_view.update_graph(
                 self.processor.figs[self.table_view.selected_row]
             )
+
+    def save_plots(self):
+        if self.processor.figs is not None:
+            self.output_directory = QFileDialog.getExistingDirectory(caption="Select Output Directory")
+            self.processor.save_plots(self.output_directory)
 
 
 ### Backend Script Connections ###
@@ -208,6 +212,16 @@ class Processor(QRunnable):
 
         self.signals.finished.emit()
 
+    def save_plots(self, output_dir):
+        if self.po_lines:
+            for po_line in self.po_lines:
+                try:
+                    file_name = _str_to_valid_filename(po_line.name) + ".png"
+                    # Replace this with temporary img file...
+                    copyfile(po_line.temp_file.name, os.path.join(output_dir, file_name))
+                except:
+                    print(f"Could not plot {po_line.name}")
+
 
 class WorkerSignals(QObject):
     """
@@ -222,6 +236,31 @@ class WorkerSignals(QObject):
 
     finished = QtCore.pyqtSignal()
     error = QtCore.pyqtSignal()
+
+
+# Utils
+
+def _str_to_valid_filename(name: str) -> str:
+    """
+    Removes troublesome chars from filename. Tries not over-prescribe - keeps underscore and dash chars as this is
+    common in TUFLOW results files.
+
+    Args:
+        name: Proposed filename for cleaning.
+
+    Returns:
+        a string with more valid filename.
+    """
+
+    invalid_chars = r"%:/,\[]<>*?"
+    valid_name = ""
+
+    for c in name:
+        if c in invalid_chars:
+            c = "-"
+        valid_name += c
+
+    return valid_name
 
 
 if __name__ == "__main__":

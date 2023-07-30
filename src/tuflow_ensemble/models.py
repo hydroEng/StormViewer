@@ -1,28 +1,34 @@
 import pandas as pd
 from matplotlib import pyplot as plt
 import seaborn as sns
+from tempfile import NamedTemporaryFile
 import os
 from typing import Union
+
+
 class POLine:
-    def __init__(self, id: str, event: str, data):
+    def __init__(self, name: str,  loc: str, event: str, data):
         """
         Constructor.
 
         Args:
-            id: POLine name.
+            loc: POLine name.
             event: Storm frequency (e.g. "1yr").
             duration: Storm duration.
             tps: List of temporal patterns modelled in storm package.
             data: Pandas dataframe containing maximum flows.
         """
 
-        self.id = id
+        self.name = name
+        self.loc = loc
         self.event = event
         self.data = data
 
         self.crit_duration, self.crit_tp, self.crit_flow = self.results(data)
 
+        # Figure objects
         self.fig = None
+        self.temp_file: str
 
     def plot(self):
 
@@ -40,10 +46,14 @@ class POLine:
         ax.set_ylabel(r"Max Flow ($\mathregular{m^{3}}$/s)")
         ax.set_title(name)
 
-        fig.set_size_inches(3, 3)
-        print(type(fig))
+        # Save figure as object to show in gui, as well as file if user wants to save later.
 
         self.fig = fig
+        self.temp_file = NamedTemporaryFile(suffix='.png', delete=False)
+
+        plt.savefig(self.temp_file.name, dpi=200)
+
+        return
 
     def results(self, data):
         """
@@ -62,7 +72,3 @@ class POLine:
 
         return crit_duration, crit_tp, crit_flow
 
-    def save_results(self, output_directory: str):
-        if os.path.exists(output_directory):
-            if self.fig:
-                self.fig.sa
