@@ -25,7 +25,7 @@ import te
 from shutil import copyfile
 from table import TableView
 from graph import GraphView
-from controls import BottomControls
+from controls import BottomControls, InputControls
 
 class App(QWidget):
     def __init__(self):
@@ -38,7 +38,7 @@ class App(QWidget):
         self.threadpool = QThreadPool()
         self.main_layout = QGridLayout()
         self.processor = Processor()
-        self.top_controls = self.input_controls()
+        self.top_controls = InputControls()
 
         self.control_view = BottomControls()
         self.table_view = TableView()
@@ -63,56 +63,9 @@ class App(QWidget):
         self.main_layout.addWidget(self.table_view, 0, 1)
         self.main_layout.addWidget(self.control_view, 2, 0, 1, 2)
         self.main_layout.addWidget(self.top_controls, 0, 0)
-
         self.main_layout.addWidget(self.graph_view, 1, 0, 1, 2)
 
         self.setLayout(self.main_layout)
-
-    def input_controls(self):
-
-        widget = QWidget()
-        widget.setFixedWidth(150)
-        widget.setFixedHeight(180)
-
-        layout = QVBoxLayout()
-
-        icon = self.app_icon_label()
-
-        browse_input = QPushButton("Select Results\n Folder")
-        browse_input.clicked.connect(self.read_input_path)
-
-        create_plots = QPushButton("Create Plots")
-        create_plots.setEnabled(False)
-        create_plots.setFixedHeight(30)
-        create_plots.clicked.connect(self.create_plots)
-
-        layout.addWidget(icon)
-        layout.addWidget(browse_input)
-        layout.addWidget(create_plots)
-
-        layout.addStretch()
-        widget.setLayout(layout)
-
-        return widget
-
-    def app_icon_label(self):
-
-        """Rain Cloud Icon"""
-        # Icon and file inputs cell
-
-        iconPath = resource_path("assets/rain-svgrepo-com.svg")
-
-        # Add App Icon
-
-        app_icon_label = QLabel(self)
-        app_icon = QPixmap(iconPath).scaledToWidth(80)
-
-        # Format app icon
-
-        app_icon_label.setPixmap(app_icon)
-        app_icon_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-
-        return app_icon_label
 
     # CONTROLLER FUNCTIONS
 

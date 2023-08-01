@@ -2,6 +2,8 @@ from PyQt6 import QtCore
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QPixmap
 from PyQt6.QtWidgets import QPushButton, QWidget, QStyle, QFileDialog, QHBoxLayout, QVBoxLayout, QLabel
+import os
+import sys
 
 
 class BottomControls(QWidget):
@@ -36,12 +38,14 @@ class BottomControls(QWidget):
         button.setIcon(icon)
         return button
 
+
 class InputControls(QWidget):
     """
     Class for input controls.
     """
-    def __init__(self):
 
+    def __init__(self):
+        super().__init__()
         self.setFixedWidth(150)
         self.setFixedHeight(180)
 
@@ -54,8 +58,12 @@ class InputControls(QWidget):
         self.create_plots_btn.setEnabled(False)
         self.create_plots_btn.setFixedHeight(30)
 
-        self.layout.addWidget()
-        # self.layout
+        self.layout.addWidget(self.icon)
+        self.layout.addWidget(self.input_btn)
+        self.layout.addWidget(self.create_plots_btn)
+        self.layout.addStretch()
+
+        self.setLayout(self.layout)
 
     def app_icon_label(self):
         """Rain Cloud Icon"""
@@ -74,6 +82,7 @@ class InputControls(QWidget):
         app_icon_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
 
         return app_icon_label
+
 
 def resource_path(relative_path):
     """Get absolute path to resource, works for dev and for PyInstaller.
