@@ -13,8 +13,7 @@ class GraphView(QWidget):
         super().__init__()
         self.layout = QVBoxLayout()
         self.separator = self.init_separator()
-        self.chart = self.initial_canvas()
-        print(self.chart.size())
+        self.chart = Canvas()
         self.figures = None
 
         self.init_widget()
@@ -24,22 +23,6 @@ class GraphView(QWidget):
         self.layout.addWidget(self.chart)
         self.setLayout(self.layout)
 
-    def initial_canvas(self):
-        """ Initialize empty canvas area """
-        frame = QFrame()
-        frame.setFrameShape(QFrame.Shape.Box)
-        frame.setFrameShadow(QFrame.Shadow.Sunken)
-        frame.setFixedHeight(480)
-
-        msg = QLabel("No chart loaded. Create charts by loading results and using the \"Create Plots\" button above.")
-
-        frame_layout = QVBoxLayout()
-        frame_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        frame_layout.addWidget(msg)
-        frame.setLayout(frame_layout)
-        return frame
-
-
     def init_separator(self):
         """Initialize separator above canvas area """
         separator = QFrame()
@@ -48,10 +31,43 @@ class GraphView(QWidget):
 
         return separator
 
-    def update_graph(self, figure):
-        """Destroy existing MplCanvas, create new canvas with chosen figure and add to layout."""
-        self.chart.deleteLater()
 
+
+class Canvas(QFrame):
+    def __init__(self):
+        super().__init__()
+        self.label = QLabel("")
+
+        self.layout = QVBoxLayout()
+        self.layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.init_frame()
+        self.update_frame_text("No results loaded. Create charts by loading results first.")
+
+        self.chart = None
+
+        self.setLayout(self.layout)
+
+    def init_frame(self):
+
+        self.setFrameShape(QFrame.Shape.Box)
+        self.setFrameShadow(QFrame.Shadow.Sunken)
+        self.setFixedHeight(480)
+
+    def update_frame_text(self, msg: str):
+
+        self.clear_layout()
+
+        self.label.setText(msg)
+        self.layout.addWidget(self.label)
+        self.layout.update()
+        self.update()
+
+    def show_figure(self, figure):
+
+        """Destroy existing MplCanvas, create new canvas with chosen figure and add to layout."""
+
+        self.clear_layout()
         # Set DPI explicitly due to matplotlib scaling bug.
         figure.dpi = 100
         self.chart = MplCanvas(fig=figure)
@@ -59,6 +75,12 @@ class GraphView(QWidget):
         self.layout.addWidget(self.chart)
         self.layout.update()
 
+    def clear_layout(self):
+        while self.layout.count():
+            item = self.layout.takeAt(0)
+            widget = item.widget()
+            if widget:
+                self.layout.removeWidget(widget)
 
 class MplCanvas(FigureCanvasQTAgg):
     def __init__(self, fig=Figure()):

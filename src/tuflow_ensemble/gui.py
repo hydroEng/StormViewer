@@ -1,24 +1,11 @@
 from PyQt6 import QtCore
-from PyQt6.QtGui import QPalette, QColor, QFont, QPixmap, QIcon, QFontMetrics
 from PyQt6.QtWidgets import (
-    QFrame,
-    QTableWidget,
-    QStyle,
-    QMessageBox,
     QApplication,
     QWidget,
     QGridLayout,
     QFileDialog,
-    QPushButton,
-    QLabel,
-    QVBoxLayout,
-    QHBoxLayout,
-    QDialog,
-    QHeaderView,
-    QStyleFactory,
-    QTableWidgetItem,
 )
-from PyQt6.QtCore import QObject, QThreadPool, QRunnable, pyqtSignal, pyqtSlot
+from PyQt6.QtCore import QObject, QThreadPool, QRunnable
 import os
 import sys
 import te
@@ -26,6 +13,7 @@ from shutil import copyfile
 from table import TableView
 from graph import GraphView
 from controls import BottomControls, InputControls
+
 
 class App(QWidget):
     def __init__(self):
@@ -40,14 +28,16 @@ class App(QWidget):
         self.processor = Processor()
         self.top_controls = InputControls()
 
-        self.control_view = BottomControls()
+        self.bottom_controls = BottomControls()
         self.table_view = TableView()
         self.graph_view = GraphView()
 
-        # Button / row connections
+        # Button click connections
 
+        self.top_controls.input_btn.clicked.connect(self.read_input_path)
+        self.top_controls.create_plots_btn.clicked.connect(self.create_plots)
         self.table_view.table.cellClicked.connect(self.update_graph_view)
-        self.control_view.save_btn.clicked.connect(self.save_plots)
+        self.bottom_controls.save_btn.clicked.connect(self.save_plots)
 
         self.initUI()
 
@@ -61,7 +51,7 @@ class App(QWidget):
     def setUpMainWindow(self):
         """Layouts for main window"""
         self.main_layout.addWidget(self.table_view, 0, 1)
-        self.main_layout.addWidget(self.control_view, 2, 0, 1, 2)
+        self.main_layout.addWidget(self.bottom_controls, 2, 0, 1, 2)
         self.main_layout.addWidget(self.top_controls, 0, 0)
         self.main_layout.addWidget(self.graph_view, 1, 0, 1, 2)
 
@@ -83,7 +73,8 @@ class App(QWidget):
 
                 self.processor.signals.finished.connect(self.update_table_view)
 
-                print(dir(self.top_controls))
+                self.top_controls.create_plots_btn.setEnabled(True)
+                self.graph_view.chart.update_frame_text("Results loaded: Click \"Create Plots\" to see plots.")
 
         except:
             # Update canvas text to reflect failure.
@@ -111,11 +102,9 @@ class App(QWidget):
         self.table_view.directory = self.input_directory
         self.table_view.update_label()
 
-
-
     def update_graph_view(self):
         if self.processor.figs is not None:
-            self.graph_view.update_graph(
+            self.graph_view.chart.show_figure(
                 self.processor.figs[self.table_view.selected_row]
             )
 
