@@ -4,8 +4,9 @@ from PyQt6.QtWidgets import (
     QWidget,
     QGridLayout,
     QFileDialog,
+    QMainWindow
 )
-from PyQt6.QtCore import QObject, QThreadPool, QRunnable
+from PyQt6.QtCore import QObject, QThreadPool, QRunnable, Qt
 import os
 import sys
 import te
@@ -32,6 +33,8 @@ class App(QWidget):
         self.table_view = TableView()
         self.graph_view = GraphView()
 
+        self.initUI()
+
         # Button click connections
 
         self.top_controls.input_btn.clicked.connect(self.read_input_path)
@@ -39,7 +42,10 @@ class App(QWidget):
         self.table_view.table.cellClicked.connect(self.update_graph_view)
         self.bottom_controls.save_btn.clicked.connect(self.save_plots)
 
-        self.initUI()
+        # Window controls
+
+        self.setWindowFlags(self.windowFlags() & ~Qt.WindowType.WindowMaximizeButtonHint)
+        self.setFixedSize(self.size())
 
     def initUI(self):
 
@@ -67,7 +73,6 @@ class App(QWidget):
             )
 
             if self.input_directory:
-
                 self.processor = Processor(self.input_directory)
                 self.threadpool.start(self.processor.run)
 
@@ -82,6 +87,7 @@ class App(QWidget):
 
         self.threadpool.start(self.processor.plot)
         self.processor.signals.finished.connect(self.update_graph_view)
+        self.bottom_controls.save_btn.setEnabled(True)
 
     def update_table_view(self):
 
@@ -108,18 +114,40 @@ class App(QWidget):
         self.graph_view.chart.update_frame_text(
             "Could not load results from chosen directory. Your data may be invalid or named incorrectly.\nPlease see help for instructions.",
             color='red')
+
+        self.table_view.clear_table_view()
+        self.top_controls.create_plots_btn.setEnabled(False)
+        self.bottom_controls.save_btn.setEnabled(False)
+
+    def plot_success(self):
+        self.graph_view.chart.update_frame_text(
+            f"Plots saved to {self.output_directory}", "green"
+        )
+    def plot_failure(self):
+        self.graph_view.chart.update_frame_text(
+            f"Could not save plots. Do you have access to the output directory?", "red"
+        )
     def update_graph_view(self):
+
         if self.processor.figs is not None:
             self.graph_view.chart.show_figure(
                 self.processor.figs[self.table_view.selected_row]
             )
 
     def save_plots(self):
+        # Clear output directory
+        self.output_directory = None
+
         if self.processor.figs is not None:
+            self.processor.signals.save_finished.connect(self.plot_success)
+            self.processor.signals.save_error.connect(self.plot_failure)
+
             self.output_directory = QFileDialog.getExistingDirectory(
                 caption="Select Output Directory"
             )
-            self.processor.save_plots(self.output_directory)
+            if self.output_directory:
+                self.processor.save_plots(self.output_directory)
+
 
 
 ### Backend Script Connections ###
@@ -157,14 +185,17 @@ class Processor(QRunnable):
 
     def save_plots(self, output_dir):
         if self.po_lines:
-            for po_line in self.po_lines:
-                try:
+
+            try:
+                for po_line in self.po_lines:
                     file_name = _str_to_valid_filename(po_line.name) + ".png"
                     copyfile(
                         po_line.temp_file.name, os.path.join(output_dir, file_name)
                     )
-                except:
-                    print(f"Could not plot {po_line.name}")
+                self.signals.save_finished.emit()
+            except:
+                print(f"Could not plot {po_line.name}")
+                self.signals.save_error.emit()
 
 
 class WorkerSignals(QObject):
@@ -180,6 +211,9 @@ class WorkerSignals(QObject):
 
     finished = QtCore.pyqtSignal()
     error = QtCore.pyqtSignal()
+
+    save_finished = QtCore.pyqtSignal()
+    save_error = QtCore.pyqtSignal()
 
 
 # Utils

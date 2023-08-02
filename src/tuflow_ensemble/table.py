@@ -82,6 +82,11 @@ class TableView(QWidget):
 
         self.update()
 
+    def clear_table_view(self):
+        self.table.setRowCount(0)
+        self.directory = ""
+        self.update_label()
+
     @staticmethod
     def elide_text(QFont, text: str, width: int):
         """Helper function for eliding label text"""

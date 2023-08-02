@@ -12,6 +12,7 @@ class BottomControls(QWidget):
         self.layout = QHBoxLayout()
         self.output_directory = None
         self.save_btn = self.save_button()
+        self.save_btn.setEnabled(False)
         self.help_btn = self.help_button()
         self.layout.addWidget(self.help_btn, alignment=Qt.AlignmentFlag.AlignLeft)
         self.layout.addWidget(self.save_btn)

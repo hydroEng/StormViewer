@@ -39,6 +39,7 @@ class Canvas(QFrame):
 
         self.layout = QVBoxLayout()
         self.layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
         self.init_frame()
         self.update_frame_text("No results loaded. Create charts by loading results first.")
 
@@ -50,7 +51,7 @@ class Canvas(QFrame):
 
         self.setFrameShape(QFrame.Shape.Box)
         self.setFrameShadow(QFrame.Shadow.Sunken)
-
+        self.setFixedHeight(480)
     def update_frame_text(self, msg: str, color: str = 'black'):
 
         self.clear_layout()
