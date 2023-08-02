@@ -72,9 +72,7 @@ class App(QWidget):
                 self.threadpool.start(self.processor.run)
 
                 self.processor.signals.finished.connect(self.update_table_view)
-
-                self.top_controls.create_plots_btn.setEnabled(True)
-                self.graph_view.chart.update_frame_text("Results loaded: Click \"Create Plots\" to see plots.")
+                self.processor.signals.error.connect(self.data_failure)
 
         except:
             # Update canvas text to reflect failure.
@@ -86,6 +84,9 @@ class App(QWidget):
         self.processor.signals.finished.connect(self.update_graph_view)
 
     def update_table_view(self):
+
+        self.top_controls.create_plots_btn.setEnabled(True)
+        self.graph_view.chart.update_frame_text("Results loaded: Click \"Create Plots\" to see plots.", color='green')
         table_data = []
         storms = self.processor.po_lines
 
@@ -102,6 +103,11 @@ class App(QWidget):
         self.table_view.directory = self.input_directory
         self.table_view.update_label()
 
+    def data_failure(self):
+
+        self.graph_view.chart.update_frame_text(
+            "Could not load results from chosen directory. Your data may be invalid or named incorrectly.\nPlease see help for instructions.",
+            color='red')
     def update_graph_view(self):
         if self.processor.figs is not None:
             self.graph_view.chart.show_figure(
@@ -126,11 +132,12 @@ class Processor(QRunnable):
         self.figs = None
 
     def run(self):
-        self.po_lines = te.read_input_directory(self.input_directory)
+        try:
+            self.po_lines = te.read_input_directory(self.input_directory)
 
-        if self.po_lines:
-            self.signals.finished.emit()
-        else:
+            if self.po_lines:
+                self.signals.finished.emit()
+        except:
             self.signals.error.emit()
 
     def plot(self):

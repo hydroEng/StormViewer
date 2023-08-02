@@ -32,7 +32,6 @@ class GraphView(QWidget):
         return separator
 
 
-
 class Canvas(QFrame):
     def __init__(self):
         super().__init__()
@@ -40,7 +39,6 @@ class Canvas(QFrame):
 
         self.layout = QVBoxLayout()
         self.layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
-
         self.init_frame()
         self.update_frame_text("No results loaded. Create charts by loading results first.")
 
@@ -52,15 +50,15 @@ class Canvas(QFrame):
 
         self.setFrameShape(QFrame.Shape.Box)
         self.setFrameShadow(QFrame.Shadow.Sunken)
-        self.setFixedHeight(480)
 
-    def update_frame_text(self, msg: str):
+    def update_frame_text(self, msg: str, color: str = 'black'):
 
         self.clear_layout()
-
-        self.label.setText(msg)
+        self.label = QLabel(msg)
+        self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.label.setStyleSheet(f'QLabel {{color: {color}}}')
         self.layout.addWidget(self.label)
-        self.layout.update()
+
         self.update()
 
     def show_figure(self, figure):
@@ -71,16 +69,17 @@ class Canvas(QFrame):
         # Set DPI explicitly due to matplotlib scaling bug.
         figure.dpi = 100
         self.chart = MplCanvas(fig=figure)
-
         self.layout.addWidget(self.chart)
-        self.layout.update()
+        self.update()
 
     def clear_layout(self):
+        # Deletes all widgets in frame layout.
         while self.layout.count():
             item = self.layout.takeAt(0)
             widget = item.widget()
             if widget:
-                self.layout.removeWidget(widget)
+                widget.deleteLater()
+
 
 class MplCanvas(FigureCanvasQTAgg):
     def __init__(self, fig=Figure()):
