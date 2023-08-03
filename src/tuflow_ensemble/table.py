@@ -7,6 +7,7 @@ from PyQt6.QtWidgets import (
     QTableWidget,
     QTableWidgetItem,
     QTableView,
+    QAbstractItemView
 )
 
 
@@ -47,6 +48,7 @@ class TableView(QWidget):
             ("Location", "Event", "Critical Storm", "Critical Max Flow")
         )
         table.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
 
         column_widths = [120, 120, 120, 120]
         table.setFixedWidth(sum(column_widths) + 40)

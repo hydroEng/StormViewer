@@ -73,6 +73,9 @@ class App(QWidget):
             )
 
             if self.input_directory:
+                self.graph_view.chart.update_frame_text("Calculating storm attributes...", color="blue")
+                self.top_controls.input_btn.setEnabled(False)
+
                 self.processor = Processor(self.input_directory)
                 self.threadpool.start(self.processor.run)
 
@@ -90,7 +93,7 @@ class App(QWidget):
         self.bottom_controls.save_btn.setEnabled(True)
 
     def update_table_view(self):
-
+        self.top_controls.input_btn.setEnabled(True)
         self.top_controls.create_plots_btn.setEnabled(True)
         self.graph_view.chart.update_frame_text("Results loaded: Click \"Create Plots\" to see plots.", color='green')
         table_data = []
@@ -110,7 +113,7 @@ class App(QWidget):
         self.table_view.update_label()
 
     def data_failure(self):
-
+        self.top_controls.input_btn.setEnabled(True)
         self.graph_view.chart.update_frame_text(
             "Could not load results from chosen directory. Your data may be invalid or named incorrectly.\nPlease see help for instructions.",
             color='red')

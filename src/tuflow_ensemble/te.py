@@ -8,7 +8,7 @@ import seaborn as sns
 import logger
 import traceback
 from models import POLine
-
+from shutil import rmtree
 
 def _header_length(input_csv: str):
     """Function to get header length"""
@@ -577,6 +577,10 @@ def read_input_directory(input_path: str):
         except:
             print(f"Failed to create POLine object for {df.name}")
 
+    try:
+        rmtree("_local")
+    except:
+        print("Could not delete local folder")
     return po_lines
 
 
