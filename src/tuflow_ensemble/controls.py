@@ -23,9 +23,12 @@ class BottomControls(QWidget):
         pass
 
     def save_button(self):
-        button = QPushButton("Save Plots")
+        button = QPushButton("Save Results...")
         button.setFixedHeight(30)
         button.setFixedWidth(100)
+        btn_pixmap = QStyle.StandardPixmap.SP_DialogSaveButton
+        icon = self.style().standardIcon(btn_pixmap)
+        button.setIcon(icon)
         return button
 
     def help_button(self):

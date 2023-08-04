@@ -7,14 +7,15 @@ from PyQt6.QtWidgets import (
     QMainWindow
 )
 from PyQt6.QtCore import QObject, QThreadPool, QRunnable, Qt
+from PyQt6.QtGui import QIcon
 import os
 import sys
 import te
 from shutil import copyfile
 from table import TableView
 from graph import GraphView
-from controls import BottomControls, InputControls
-
+from controls import BottomControls, InputControls, resource_path
+import csv
 
 class App(QWidget):
     def __init__(self):
@@ -33,6 +34,8 @@ class App(QWidget):
         self.table_view = TableView()
         self.graph_view = GraphView()
 
+        self.iconPath = resource_path("assets/rain-svgrepo-com.svg")
+
         self.initUI()
 
         # Button click connections
@@ -50,7 +53,7 @@ class App(QWidget):
     def initUI(self):
 
         self.setWindowTitle("StormViewer")
-
+        self.setWindowIcon(QIcon(self.iconPath))
         self.setUpMainWindow()
         self.show()
 
@@ -124,12 +127,14 @@ class App(QWidget):
 
     def plot_success(self):
         self.graph_view.chart.update_frame_text(
-            f"Plots saved to {self.output_directory}", "green"
+            f"Plots and results saved to {self.output_directory}", "green"
         )
+
     def plot_failure(self):
         self.graph_view.chart.update_frame_text(
-            f"Could not save plots. Do you have access to the output directory?", "red"
+            f"Could not save results. Do you have access to the output directory?", "red"
         )
+
     def update_graph_view(self):
 
         if self.processor.figs is not None:
@@ -149,8 +154,9 @@ class App(QWidget):
                 caption="Select Output Directory"
             )
             if self.output_directory:
-                self.processor.save_plots(self.output_directory)
-
+                table_data = self.table_view.get_table_output()
+                filename = "StormViewer_results.csv"
+                self.processor.save_plots(self.output_directory, table_data, filename)
 
 
 ### Backend Script Connections ###
@@ -186,7 +192,7 @@ class Processor(QRunnable):
 
         self.signals.finished.emit()
 
-    def save_plots(self, output_dir):
+    def save_plots(self, output_dir, tabular_data, filename: str):
         if self.po_lines:
 
             try:
@@ -195,6 +201,7 @@ class Processor(QRunnable):
                     copyfile(
                         po_line.temp_file.name, os.path.join(output_dir, file_name)
                     )
+                _list_to_csv(tabular_data, filename, output_dir)
                 self.signals.save_finished.emit()
             except:
                 print(f"Could not plot {po_line.name}")
@@ -243,6 +250,15 @@ def _str_to_valid_filename(name: str) -> str:
         valid_name += c
 
     return valid_name
+
+
+def _list_to_csv(data: list[list[str]], filename: str, output_directory: str):
+    # Write a 2d list of strings to a csv file in the output directory.
+    assert filename.endswith('.csv')
+    output_fp = os.path.join(output_directory, filename)
+    with open(output_fp, 'w', newline='') as csv_file:
+        csv_writer = csv.writer(csv_file)
+        csv_writer.writerows(data)
 
 
 if __name__ == "__main__":

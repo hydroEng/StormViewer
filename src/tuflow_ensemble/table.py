@@ -21,6 +21,7 @@ class TableView(QWidget):
         self.dir_str = "Directory: " + self.directory
         self.dir_label = QLabel(self.dir_str)
         self.table = None
+        self.table_headers = ("Location", "Event", "Critical Storm", "Critical Max Flow")
         self.selected_row = 0
 
         self.init_widget()
@@ -45,7 +46,7 @@ class TableView(QWidget):
         table.setColumnCount(4)
 
         table.setHorizontalHeaderLabels(
-            ("Location", "Event", "Critical Storm", "Critical Max Flow")
+            self.table_headers
         )
         table.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
@@ -88,6 +89,12 @@ class TableView(QWidget):
         self.table.setRowCount(0)
         self.directory = ""
         self.update_label()
+
+    def get_table_output(self):
+        # Output table as a 2d list for writing to file.
+
+        output_data = [list(self.table_headers)] + self.data
+        return output_data
 
     @staticmethod
     def elide_text(QFont, text: str, width: int):
