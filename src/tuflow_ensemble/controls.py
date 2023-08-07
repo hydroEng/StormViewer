@@ -1,7 +1,7 @@
 from PyQt6 import QtCore
 from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QPixmap
-from PyQt6.QtWidgets import QPushButton, QWidget, QStyle, QFileDialog, QHBoxLayout, QVBoxLayout, QLabel
+from PyQt6.QtGui import QPixmap, QFont
+from PyQt6.QtWidgets import QPushButton, QWidget, QStyle, QDialog, QHBoxLayout, QVBoxLayout, QLabel
 import os
 import sys
 
@@ -40,7 +40,11 @@ class BottomControls(QWidget):
         btn_pixmap = QStyle.StandardPixmap.SP_MessageBoxQuestion
         icon = self.style().standardIcon(btn_pixmap)
         button.setIcon(icon)
+        button.clicked.connect(self.open_help)
         return button
+
+    def open_help(self):
+        HelpBox()
 
 
 class InputControls(QWidget):
@@ -86,6 +90,44 @@ class InputControls(QWidget):
         app_icon_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
 
         return app_icon_label
+
+
+class HelpBox(QDialog):
+    """Provides help dialog box."""
+
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("StormViewer Help")
+        self.init_help_ui()
+
+    def init_help_ui(self):
+        layout = QVBoxLayout(self)
+
+        # Add header text
+        header_msg = "Oops! TUFLOW Ensemble Tool has encountered an error. \n"
+        header = QLabel()
+        header.setText(header_msg)
+
+        header_font = QFont()
+        header_font.setBold(True)
+        header_font.setPointSize(13)
+        header.setFont(header_font)
+
+        help_msg = "Help Message Goes Here"
+
+        label = QLabel()
+        label.setText(help_msg)
+
+        # Add close button
+        close_button = QPushButton("Close", self)
+        close_button.clicked.connect(self.close)
+
+        # Build layout
+        layout.addWidget(header)
+        layout.addWidget(label)
+        layout.addWidget(close_button)
+
+        self.exec()
 
 
 def resource_path(relative_path):
