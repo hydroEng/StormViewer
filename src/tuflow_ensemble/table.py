@@ -7,7 +7,7 @@ from PyQt6.QtWidgets import (
     QTableWidget,
     QTableWidgetItem,
     QTableView,
-    QAbstractItemView
+    QAbstractItemView,
 )
 
 
@@ -21,7 +21,12 @@ class TableView(QWidget):
         self.dir_str = "Directory: " + self.directory
         self.dir_label = QLabel(self.dir_str)
         self.table = None
-        self.table_headers = ("Location", "Event", "Critical Storm", "Critical Max Flow")
+        self.table_headers = (
+            "Location",
+            "Event",
+            "Critical Storm",
+            "Critical Max Flow",
+        )
         self.selected_row = 0
 
         self.init_widget()
@@ -45,9 +50,7 @@ class TableView(QWidget):
         table = QTableWidget()
         table.setColumnCount(4)
 
-        table.setHorizontalHeaderLabels(
-            self.table_headers
-        )
+        table.setHorizontalHeaderLabels(self.table_headers)
         table.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
 

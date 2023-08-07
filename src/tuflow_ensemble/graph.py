@@ -24,7 +24,7 @@ class GraphView(QWidget):
         self.setLayout(self.layout)
 
     def init_separator(self):
-        """Initialize separator above canvas area """
+        """Initialize separator above canvas area"""
         separator = QFrame()
         separator.setFrameShape(QFrame.Shape.HLine)
         separator.setFrameShadow(QFrame.Shadow.Sunken)
@@ -41,7 +41,9 @@ class Canvas(QFrame):
         self.layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.init_frame()
-        self.update_frame_text("No results loaded. Create charts by loading results first.")
+        self.update_frame_text(
+            "No results loaded. Create charts by loading results first."
+        )
 
         self.chart = None
 
@@ -52,12 +54,13 @@ class Canvas(QFrame):
         self.setFrameShape(QFrame.Shape.Box)
         self.setFrameShadow(QFrame.Shadow.Sunken)
         self.setFixedHeight(480)
-    def update_frame_text(self, msg: str, color: str = 'black'):
+
+    def update_frame_text(self, msg: str, color: str = "black"):
 
         self.clear_layout()
         self.label = QLabel(msg)
         self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.label.setStyleSheet(f'QLabel {{color: {color}}}')
+        self.label.setStyleSheet(f"QLabel {{color: {color}}}")
         self.layout.addWidget(self.label)
 
         self.update()

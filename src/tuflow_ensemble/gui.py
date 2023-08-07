@@ -1,11 +1,5 @@
 from PyQt6 import QtCore
-from PyQt6.QtWidgets import (
-    QApplication,
-    QWidget,
-    QGridLayout,
-    QFileDialog,
-    QMainWindow
-)
+from PyQt6.QtWidgets import QApplication, QWidget, QGridLayout, QFileDialog, QMainWindow
 from PyQt6.QtCore import QObject, QThreadPool, QRunnable, Qt
 from PyQt6.QtGui import QIcon
 import os
@@ -16,6 +10,7 @@ from table import TableView
 from graph import GraphView
 from controls import BottomControls, InputControls, resource_path
 import csv
+
 
 class App(QWidget):
     def __init__(self):
@@ -47,7 +42,9 @@ class App(QWidget):
 
         # Window controls
 
-        self.setWindowFlags(self.windowFlags() & ~Qt.WindowType.WindowMaximizeButtonHint)
+        self.setWindowFlags(
+            self.windowFlags() & ~Qt.WindowType.WindowMaximizeButtonHint
+        )
         self.setFixedSize(self.size())
 
     def initUI(self):
@@ -76,7 +73,9 @@ class App(QWidget):
             )
 
             if self.input_directory:
-                self.graph_view.chart.update_frame_text("Calculating storm attributes...", color="blue")
+                self.graph_view.chart.update_frame_text(
+                    "Calculating storm attributes...", color="blue"
+                )
                 self.top_controls.input_btn.setEnabled(False)
 
                 self.processor = Processor(self.input_directory)
@@ -98,7 +97,9 @@ class App(QWidget):
     def update_table_view(self):
         self.top_controls.input_btn.setEnabled(True)
         self.top_controls.create_plots_btn.setEnabled(True)
-        self.graph_view.chart.update_frame_text("Results loaded: Click \"Create Plots\" to see plots.", color='green')
+        self.graph_view.chart.update_frame_text(
+            'Results loaded: Click "Create Plots" to see plots.', color="green"
+        )
         table_data = []
         storms = self.processor.po_lines
 
@@ -119,7 +120,8 @@ class App(QWidget):
         self.top_controls.input_btn.setEnabled(True)
         self.graph_view.chart.update_frame_text(
             "Could not load results from chosen directory. Your data may be invalid or named incorrectly.\nPlease see help for instructions.",
-            color='red')
+            color="red",
+        )
 
         self.table_view.clear_table_view()
         self.top_controls.create_plots_btn.setEnabled(False)
@@ -132,7 +134,8 @@ class App(QWidget):
 
     def plot_failure(self):
         self.graph_view.chart.update_frame_text(
-            f"Could not save results. Do you have access to the output directory?", "red"
+            f"Could not save results. Do you have access to the output directory?",
+            "red",
         )
 
     def update_graph_view(self):
@@ -254,9 +257,9 @@ def _str_to_valid_filename(name: str) -> str:
 
 def _list_to_csv(data: list[list[str]], filename: str, output_directory: str):
     # Write a 2d list of strings to a csv file in the output directory.
-    assert filename.endswith('.csv')
+    assert filename.endswith(".csv")
     output_fp = os.path.join(output_directory, filename)
-    with open(output_fp, 'w', newline='') as csv_file:
+    with open(output_fp, "w", newline="") as csv_file:
         csv_writer = csv.writer(csv_file)
         csv_writer.writerows(data)
 

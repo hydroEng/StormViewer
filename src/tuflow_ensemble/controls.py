@@ -1,7 +1,15 @@
 from PyQt6 import QtCore
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QPixmap, QFont
-from PyQt6.QtWidgets import QPushButton, QWidget, QStyle, QDialog, QHBoxLayout, QVBoxLayout, QLabel
+from PyQt6.QtWidgets import (
+    QPushButton,
+    QWidget,
+    QStyle,
+    QDialog,
+    QHBoxLayout,
+    QVBoxLayout,
+    QLabel,
+)
 import os
 import sys
 
@@ -91,8 +99,10 @@ class InputControls(QWidget):
 
         return app_icon_label
 
+
 def debug(widget):
     widget.setStyleSheet("border: 2px solid red;")
+
 
 class HelpBox(QDialog):
     """Provides help dialog box."""
@@ -100,14 +110,14 @@ class HelpBox(QDialog):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Help")
-        self.setFixedSize(350, 120)
-
-
+        self.setFixedSize(350, 140)
 
         self.init_help_ui()
 
     def init_help_ui(self):
-        self.setWindowFlags(self.windowFlags() & ~Qt.WindowType.WindowMaximizeButtonHint)
+        self.setWindowFlags(
+            self.windowFlags() & ~Qt.WindowType.WindowMaximizeButtonHint
+        )
         master_layout = QHBoxLayout()
 
         help_icon_path = resource_path("assets/help-question-svgrepo-com.svg")
@@ -124,20 +134,19 @@ class HelpBox(QDialog):
         layout = QVBoxLayout()
         layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-
         # Add header text
         header_msg = "StormViewer v.1.3"
         header = QLabel()
         header.setText(header_msg)
 
-
         header_font = QFont()
         header_font.setBold(True)
         header_font.setPointSize(12)
         header.setFont(header_font)
-        header.setLineWidth(0)
 
-        help_label = QLabel('For detailed help instructions, please visit the <a href="https://github.com/hydroEng/tuflow_ensemble/blob/master/USER_MANUAL.md"> official user manual</a>.')
+        help_label = QLabel(
+            'For detailed help instructions, please visit the <a href="https://github.com/hydroEng/tuflow_ensemble/blob/master/USER_MANUAL.md"> official user manual</a>.'
+        )
         help_label.setWordWrap(True)
         help_label.setMinimumWidth(200)
 
@@ -150,7 +159,6 @@ class HelpBox(QDialog):
         #### Build layout
         layout.addWidget(header)
         layout.addWidget(help_label)
-        layout.addStretch(3)
         layout.addWidget(close_button)
 
         master_layout.addWidget(help_icon_label)
