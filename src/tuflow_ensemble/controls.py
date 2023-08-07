@@ -91,6 +91,8 @@ class InputControls(QWidget):
 
         return app_icon_label
 
+def debug(widget):
+    widget.setStyleSheet("border: 2px solid red;")
 
 class HelpBox(QDialog):
     """Provides help dialog box."""
@@ -98,7 +100,7 @@ class HelpBox(QDialog):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Help")
-        self.setFixedSize(350, 150)
+        self.setFixedSize(350, 120)
 
 
 
@@ -113,7 +115,7 @@ class HelpBox(QDialog):
         #### Help icon
 
         help_icon_label = QLabel()
-        help_icon = QPixmap(help_icon_path).scaledToWidth(84)
+        help_icon = QPixmap(help_icon_path).scaledToWidth(72)
         help_icon_label.setPixmap(help_icon)
         help_icon_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
@@ -124,7 +126,7 @@ class HelpBox(QDialog):
 
 
         # Add header text
-        header_msg = "StormViewer v.1.3 \n"
+        header_msg = "StormViewer v.1.3"
         header = QLabel()
         header.setText(header_msg)
 
