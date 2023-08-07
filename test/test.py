@@ -1,7 +1,7 @@
 import unittest
 import os
 import pandas as pd
-from StormViewer import te, logger
+from StormViewer import logger, te
 import pathlib
 
 wd = pathlib.Path(__file__).parent.resolve()
