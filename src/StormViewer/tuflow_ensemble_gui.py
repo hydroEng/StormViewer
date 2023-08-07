@@ -269,7 +269,7 @@ class ErrorBox(QDialog):
         # Add error message
         err_msg = (
             '\nThere might be a problem with your input data. Please view "log.txt" in the\n'
-            "output folder for info and report to github.com/hydroEng/tuflow_ensemble.\n"
+            "output folder for info and report to github.com/hydroEng/StormViewer.\n"
         )
 
         label = QLabel()

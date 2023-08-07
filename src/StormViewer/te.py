@@ -659,7 +659,7 @@ def main(input_path: str, output_path: str):
         status = "Success"
 
     except Exception:
-        print("tuflow_ensemble has encountered an error! Please see log.txt.")
+        print("StormViewer has encountered an error! Please see log.txt.")
         # Capture standard error to log.txt.
         err = (
             f"Error encountered! Please report this through the issues tab in https://github.com/hydroEng/tuflow_ensemble."
