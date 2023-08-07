@@ -2,8 +2,6 @@ import pandas as pd
 from matplotlib import pyplot as plt
 import seaborn as sns
 from tempfile import NamedTemporaryFile
-import os
-from typing import Union
 
 
 class POLine:

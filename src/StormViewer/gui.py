@@ -1,5 +1,5 @@
 from PyQt6 import QtCore
-from PyQt6.QtWidgets import QApplication, QWidget, QGridLayout, QFileDialog, QMainWindow
+from PyQt6.QtWidgets import QApplication, QWidget, QGridLayout, QFileDialog
 from PyQt6.QtCore import QObject, QThreadPool, QRunnable, Qt
 from PyQt6.QtGui import QIcon
 import os
