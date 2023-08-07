@@ -97,36 +97,63 @@ class HelpBox(QDialog):
 
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("StormViewer Help")
+        self.setWindowTitle("Help")
+        self.setFixedSize(350, 150)
+
+
+
         self.init_help_ui()
 
     def init_help_ui(self):
-        layout = QVBoxLayout(self)
+        self.setWindowFlags(self.windowFlags() & ~Qt.WindowType.WindowMaximizeButtonHint)
+        master_layout = QHBoxLayout()
+
+        help_icon_path = resource_path("assets/help-question-svgrepo-com.svg")
+
+        #### Help icon
+
+        help_icon_label = QLabel()
+        help_icon = QPixmap(help_icon_path).scaledToWidth(84)
+        help_icon_label.setPixmap(help_icon)
+        help_icon_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        #### Help text area
+
+        layout = QVBoxLayout()
+        layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
 
         # Add header text
-        header_msg = "Oops! TUFLOW Ensemble Tool has encountered an error. \n"
+        header_msg = "StormViewer v.1.3 \n"
         header = QLabel()
         header.setText(header_msg)
 
+
         header_font = QFont()
         header_font.setBold(True)
-        header_font.setPointSize(13)
+        header_font.setPointSize(12)
         header.setFont(header_font)
+        header.setLineWidth(0)
 
-        help_msg = "Help Message Goes Here"
+        help_label = QLabel('For detailed help instructions, please visit the <a href="https://github.com/hydroEng/tuflow_ensemble/blob/master/USER_MANUAL.md"> official user manual</a>.')
+        help_label.setWordWrap(True)
+        help_label.setMinimumWidth(200)
 
-        label = QLabel()
-        label.setText(help_msg)
+        help_label.setOpenExternalLinks(True)
 
-        # Add close button
+        #### lose button
         close_button = QPushButton("Close", self)
         close_button.clicked.connect(self.close)
 
-        # Build layout
+        #### Build layout
         layout.addWidget(header)
-        layout.addWidget(label)
+        layout.addWidget(help_label)
+        layout.addStretch(3)
         layout.addWidget(close_button)
 
+        master_layout.addWidget(help_icon_label)
+        master_layout.addLayout(layout)
+        self.setLayout(master_layout)
         self.exec()
 
 
