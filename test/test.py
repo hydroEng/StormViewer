@@ -1,7 +1,8 @@
 import unittest
 import os
 import pandas as pd
-from tuflow_ensemble import te, logger
+from StormViewer import logger
+from StormViewer import te
 import pathlib
 
 wd = pathlib.Path(__file__).parent.resolve()
