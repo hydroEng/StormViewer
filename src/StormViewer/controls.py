@@ -1,6 +1,6 @@
 from PyQt6 import QtCore
 from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QPixmap, QFont
+from PyQt6.QtGui import QPixmap, QFont, QIcon
 from PyQt6.QtWidgets import (
     QPushButton,
     QWidget,
@@ -110,20 +110,18 @@ class HelpBox(QDialog):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Help")
-        self.setFixedSize(350, 140)
-
         self.init_help_ui()
 
     def init_help_ui(self):
         self.setWindowFlags(
             self.windowFlags() & ~Qt.WindowType.WindowMaximizeButtonHint
         )
-        master_layout = QHBoxLayout()
 
         help_icon_path = resource_path("assets/help-question-svgrepo-com.svg")
 
         #### Help icon
 
+        self.setWindowIcon(QIcon(help_icon_path))
         help_icon_label = QLabel()
         help_icon = QPixmap(help_icon_path).scaledToWidth(72)
         help_icon_label.setPixmap(help_icon)
@@ -148,7 +146,7 @@ class HelpBox(QDialog):
             'For detailed help instructions, please visit the <a href="https://github.com/hydroEng/tuflow_ensemble/blob/master/USER_MANUAL.md"> official user manual</a>.'
         )
         help_label.setWordWrap(True)
-        help_label.setMinimumWidth(200)
+
 
         help_label.setOpenExternalLinks(True)
 
@@ -157,23 +155,19 @@ class HelpBox(QDialog):
         close_button.clicked.connect(self.close)
 
         #### Build layout
+        layout.addWidget(help_icon_label)
         layout.addWidget(header)
         layout.addWidget(help_label)
         layout.addWidget(close_button)
 
-        master_layout.addWidget(help_icon_label)
-        master_layout.addLayout(layout)
-        self.setLayout(master_layout)
+        self.setLayout(layout)
         self.exec()
 
 
 def resource_path(relative_path):
     """Get absolute path to resource, works for dev and for PyInstaller.
     From https://stackoverflow.com/questions/31836104/pyinstaller-and-onefile-how-to-include-an-image-in-the-exe-file"""
-    try:
-        # PyInstaller creates a temp folder and stores path in _MEIPASS
-        base_path = sys._MEIPASS
-    except Exception:
-        base_path = os.path.abspath(".")
-
-    return os.path.join(base_path, relative_path)
+    if hasattr(sys, "_MEIPASS"):
+        return os.path.join(sys._MEIPASS, relative_path)
+    else:
+        return relative_path
