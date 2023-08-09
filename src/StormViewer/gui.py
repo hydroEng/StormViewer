@@ -4,11 +4,11 @@ from PyQt6.QtCore import QObject, QThreadPool, QRunnable, Qt
 from PyQt6.QtGui import QIcon
 import os
 import sys
-import te
+from StormViewer import te
 from shutil import copyfile
-from table import TableView
-from graph import GraphView
-from controls import BottomControls, InputControls, resource_path
+from StormViewer.table import TableView
+from StormViewer.graph import GraphView
+from StormViewer.controls import BottomControls, InputControls, resource_path
 import csv
 
 
